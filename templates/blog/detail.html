@@ -1,0 +1,33 @@
+{% extends "base.html" %}{% load static %}
+{% block structured_data %}<script type="application/ld+json">{{ schema|safe }}</script>{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'blog/style.css' %}">
+<meta property="og:type" content="article"><meta property="og:title" content="{{ article.title }}">
+<meta property="og:description" content="{{ article.excerpt }}"><meta property="og:url" content="{{ canonical }}">
+<meta property="og:site_name" content="Lignet Brasil"><meta property="og:locale" content="pt_BR">
+{% if image_url %}<meta property="og:image" content="{{ image_url }}"><meta property="og:image:alt" content="{{ article.cover.alt }}">{% endif %}
+<meta property="article:published_time" content="{{ article.published_at|date:'c' }}">
+<meta property="article:modified_time" content="{{ article.updated_at|date:'c' }}">
+<meta name="twitter:card" content="summary_large_image">
+{% endblock %}
+{% block content %}
+<article class="shell blog-article">
+  <nav class="blog-breadcrumb" aria-label="Você está em"><a href="/">Início</a> / <a href="{% url 'blog:list' %}">Blog</a> / <a href="{% url 'blog:category' article.category.slug %}">{{ article.category }}</a></nav>
+  <header class="blog-article-header">
+    <span class="eyebrow">{{ article.category }}</span><h1>{{ article.title }}</h1>
+    <p class="lead">{{ article.excerpt }}</p>
+    <p class="private-note">Redação Lignet Brasil · {{ article.published_at|date:"d/m/Y" }} · Atualizado em {{ article.updated_at|date:"d/m/Y" }}</p>
+    {% if article.generated %}<p class="blog-disclosure">Texto produzido com auxílio de IA. Consulte as referências e confirme as orientações para o seu ambiente; geração automática não equivale a verificação factual.</p>{% endif %}
+  </header>
+  {% if article.cover %}<figure class="blog-cover"><img src="{{ article.cover.image.url }}" alt="{{ article.cover.alt }}" width="{{ article.cover.image.width }}" height="{{ article.cover.image.height }}"><figcaption>Foto: {{ article.cover.credit }}. Imagem ilustrativa.</figcaption></figure>{% endif %}
+  <div class="blog-prose">{{ article.body|linebreaks }}</div>
+  <aside class="panel blog-tools"><h2>Da leitura para a prática</h2><p>Use as ferramentas relacionadas a este assunto, respeitando os limites e avisos de cada uma.</p>
+    {% for tool in tools %}<a class="btn btn-outline-primary" href="{{ tool.url }}">{{ tool.name }} →</a>{% empty %}<a href="/">Conheça as ferramentas Lignet →</a>{% endfor %}
+  </aside>
+  <section class="blog-references"><h2>Referências para conferir</h2><ul>{% for reference in article.references %}<li><a href="{{ reference }}" rel="noopener noreferrer">{{ reference }}</a></li>{% endfor %}</ul>
+    <p>Documentações podem mudar. Confira a versão do software e as condições do seu ambiente antes de aplicar alterações.</p>
+    <div class="blog-categories">{% for keyword in article.keywords.all %}<span>{{ keyword }}</span>{% endfor %}</div>
+  </section>
+</article>
+{% if related %}<section class="shell blog-space"><h2>Continue explorando</h2><div class="blog-grid">{% for other in related %}<article class="blog-card"><div class="blog-card-body"><span class="blog-category">{{ other.category }}</span><h3><a href="{{ other.get_absolute_url }}">{{ other.title }}</a></h3><p>{{ other.excerpt }}</p></div></article>{% endfor %}</div></section>{% endif %}
+{% endblock %}

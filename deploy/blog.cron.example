@@ -1,0 +1,4 @@
+# Install as the Lignet service user using crontab -e.
+# Create the log directory first and replace all paths with the actual deployment.
+# The command supplies local and PostgreSQL advisory locks against overlap.
+*/5 * * * * cd /var/www/lignetbrasil/site && /var/www/lignetbrasil/site/.venv/bin/python manage.py blog_run >> /var/log/lignet/blog-cron.log 2>&1

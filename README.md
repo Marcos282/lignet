@@ -1,5 +1,13 @@
 # Lignet Brasil
 
+## Blog com publicação automática
+
+O blog Django, lote inicial de 20 guias, fotos próprias, paginação, agendamentos
+e rotina Cron estão documentados em [Blog editorial](docs/BLOG.md).
+Após migrar, execute `python manage.py blog_seed`, cadastre as fotos no admin
+e habilite a rotina. Aprovação é automática; retirada é manual. Não há fotos
+de terceiros nem publicação de textos sem capa autorizada.
+
 Site estático: abra `index.html` no navegador ou publique esta pasta em um
 servidor HTTP. Não exige Node.js, build, conta ou API externa.
 

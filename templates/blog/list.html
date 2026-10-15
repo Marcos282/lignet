@@ -1,0 +1,34 @@
+{% extends "base.html" %}{% load static %}
+{% block structured_data %}{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'blog/style.css' %}">
+<meta property="og:type" content="website"><meta property="og:title" content="{{ title }}">
+<meta property="og:description" content="{{ description }}"><meta property="og:url" content="{{ canonical }}">
+{% endblock %}
+{% block content %}
+<section class="hero"><div class="shell">
+  <span class="eyebrow"><span class="dot"></span> CONHECIMENTO QUE VIRA SOLUÇÃO</span>
+  <h1>{% if selected %}{{ selected.name }}{% else %}Entenda a tecnologia.<br><em>Resolva na prática.</em>{% endif %}</h1>
+  <p class="lead">{{ description }}</p>
+  <nav class="blog-categories" aria-label="Categorias">
+    <a href="{% url 'blog:list' %}">Todos os artigos</a>
+    {% for category in categories %}<a href="{% url 'blog:category' category.slug %}">{{ category.name }}</a>{% endfor %}
+  </nav>
+</div></section>
+<div class="shell blog-space">
+  <div class="blog-grid">
+    {% for article in page %}
+    <article class="blog-card">
+      {% if article.cover %}<a href="{{ article.get_absolute_url }}" tabindex="-1" aria-hidden="true"><img src="{{ article.cover.image.url }}" alt="" loading="lazy" width="800" height="450"></a>{% endif %}
+      <div class="blog-card-body">
+        <a class="blog-category" href="{% url 'blog:category' article.category.slug %}">{{ article.category }}</a>
+        <h2><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></h2>
+        <p>{{ article.excerpt }}</p>
+        <small>{{ article.published_at|date:"d/m/Y" }} · Redação Lignet Brasil</small>
+      </div>
+    </article>
+    {% empty %}<div class="panel"><h2>Estamos preparando os primeiros guias.</h2><p>Os artigos serão disponibilizados após revisão editorial e inclusão das fotos.</p><a href="/">Explore nossas ferramentas gratuitas →</a></div>{% endfor %}
+  </div>
+  {% include "blog/pagination.html" with page=page parameter="page" %}
+</div>
+{% endblock %}

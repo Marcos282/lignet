@@ -23,7 +23,7 @@ services:
   web:
     <<: *app
     ports: ["127.0.0.1:8000:8000"]
-    volumes: ["static:/app/staticfiles"]
+    volumes: ["static:/app/staticfiles", "media:/app/media"]
   worker:
     <<: *app
     command: ["celery", "-A", "lignet", "worker", "--loglevel=INFO", "--concurrency=2", "--max-tasks-per-child=100", "--max-memory-per-child=262144"]
@@ -58,3 +58,4 @@ volumes:
   postgres:
   redis:
   static:
+  media:

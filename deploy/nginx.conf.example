@@ -3,7 +3,7 @@
 # Upstream Django must be inaccessible to untrusted clients.
 upstream lignet_django { server 127.0.0.1:8000; }
 # Inside the existing HTTPS server block:
-# client_max_body_size 6m;
+# client_max_body_size 10m; # Own blog photos are limited to 8 MB by the app.
 # location = /integracoes/google/callback/ {
 #     access_log off; # OAuth authorization codes must not enter access logs.
 #     proxy_set_header Host $host;
@@ -15,7 +15,12 @@ upstream lignet_django { server 127.0.0.1:8000; }
 #     alias /path/to/collected/static/;
 #     autoindex off;
 # }
-# location ~ ^/(ferramentas|relatorios|painel|conta|dominios|integracoes|admin)/ {
+# location /media/ {
+#     alias /path/to/lignet/media/;
+#     autoindex off;
+#     add_header X-Content-Type-Options nosniff always;
+# }
+# location ~ ^/(blog|ferramentas|api/globalping|relatorios|painel|conta|dominios|integracoes|admin)/ {
 #     proxy_set_header Host $host;
 #     proxy_set_header X-Forwarded-Proto https;
 #     proxy_set_header X-Real-IP $remote_addr;

@@ -64,6 +64,7 @@ GOOGLE_REDIRECT_URI = SITE_URL + '/integracoes/google/callback/'
 TOKEN_ENCRYPTION_KEY = os.getenv('TOKEN_ENCRYPTION_KEY','')
 PAGESPEED_API_KEY = os.getenv('PAGESPEED_API_KEY','')
 LOGGING = {'version':1,'disable_existing_loggers':False,'handlers':{'console':{'class':'logging.StreamHandler'}},'loggers':{'lignet.audit':{'handlers':['console'],'level':'INFO','propagate':False}}}
+LOGGING['loggers']['blog'] = {'handlers': ['console'], 'level': 'INFO', 'propagate': False}
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 6 * 1024 * 1024
 CELERY_BROKER_CONNECTION_TIMEOUT = 3
@@ -76,6 +77,11 @@ if os.getenv('TRUST_HTTPS_PROXY','false').lower() == 'true':
 TRUSTED_PROXY_IPS = [x.strip() for x in os.getenv("TRUSTED_PROXY_IPS", "").split(",") if x.strip()]
 
 INSTALLED_APPS += ['globalping']
+INSTALLED_APPS += ['blog']
+BLOG_OLLAMA_URL = os.getenv('BLOG_OLLAMA_URL', 'http://127.0.0.1:11434')
+BLOG_OLLAMA_MODEL = os.getenv('BLOG_OLLAMA_MODEL', 'qwen2.5:7b')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 GLOBALPING_REQUESTS_PER_HOUR = int(os.getenv('GLOBALPING_REQUESTS_PER_HOUR', '10'))
 GLOBALPING_MAX_PROBES = int(os.getenv('GLOBALPING_MAX_PROBES', '5'))
 GLOBALPING_PROBES_PER_HOUR = int(os.getenv('GLOBALPING_PROBES_PER_HOUR', '200'))

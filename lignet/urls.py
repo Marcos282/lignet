@@ -3,13 +3,16 @@ from django.urls import path,include
 from django.contrib.auth import views as auth_views
 from core import views
 from search_console import views as google
+from blog import views as blog_views
 urlpatterns=[
+    path('blog/',include('blog.urls')),
     path('',include('globalping.urls')),
     path('',views.portal,name='home'),
     path('qr.js',views.legacy_asset,{'name':'qr.js'}),
     path('vendor/qrcode.js',views.legacy_asset,{'name':'vendor/qrcode.js'}),
     path('vendor/qrcode_UTF8.js',views.legacy_asset,{'name':'vendor/qrcode_UTF8.js'}),
     path('admin/operacao/',admin.site.admin_view(views.operations),name='operations'),
+    path('admin/blog/indicadores/',blog_views.overview,name='blog-overview'),
     path('admin/',admin.site.urls),
     path('conta/cadastro/',views.signup,name='signup'),
     path('conta/login/',auth_views.LoginView.as_view(),name='login'),

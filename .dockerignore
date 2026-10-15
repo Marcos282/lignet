@@ -7,3 +7,5 @@ staticfiles
 .agents
 .codex
 .aws
+media/
+staticfiles/

@@ -1,0 +1,31 @@
+{% extends "base.html" %}{% load static %}
+{% block structured_data %}{% endblock %}
+{% block head %}<meta name="robots" content="noindex,nofollow"><link rel="stylesheet" href="{% static 'blog/style.css' %}">{% endblock %}
+{% block content %}
+<section class="shell blog-space">
+  <h1>Painel editorial</h1><p>Dados reais do banco. Notícias encontradas não significam fatos confirmados.</p>
+  <div class="blog-grid">{% for label, count in counts.items %}<div class="panel"><span>{{ label }}</span><div class="metric">{{ count }}</div></div>{% endfor %}</div>
+  <nav class="blog-categories" aria-label="Administração editorial">
+    <a href="{% url 'admin:blog_source_changelist' %}">Fontes</a>
+    <a href="{% url 'admin:blog_article_changelist' %}">Artigos e aprovação</a>
+    <a href="{% url 'admin:blog_photo_changelist' %}">Fotos próprias</a>
+    <a href="{% url 'admin:blog_editorialsettings_changelist' %}">Configuração</a>
+    <a href="{% url 'admin:blog_publicationslot_changelist' %}">Horários</a>
+    <a href="{% url 'dashboard' %}">Google Search Console</a>
+  </nav>
+  <p>Rotina: {{ config.enabled|yesno:"habilitada,desabilitada" }} · Publicação automática: {{ config.automatic|yesno:"sim,não" }} · Limite diário: {{ config.daily_limit|default:"não configurado" }}. Horários no fuso do projeto.</p>
+  <h2>Execuções</h2><div class="table-wrap"><table><thead><tr><th>Início</th><th>Estado</th><th>Encontradas</th><th>Produzidos</th><th>Publicados</th></tr></thead><tbody>
+  {% for run in runs %}<tr><td>{{ run.started_at|date:"d/m/Y H:i" }}</td><td>{{ run.get_status_display }}</td><td>{{ run.found }}</td><td>{{ run.produced }}</td><td>{{ run.published }}</td></tr>{% empty %}<tr><td colspan="5">Nenhuma execução registrada.</td></tr>{% endfor %}</tbody></table></div>
+  {% include "blog/pagination.html" with page=runs parameter="page" %}
+  <h2>Histórico de eventos e erros</h2><div class="table-wrap"><table><thead><tr><th>Data</th><th>Etapa</th><th>Nível</th><th>Mensagem</th></tr></thead><tbody>
+  {% for event in events %}<tr><td>{{ event.created_at|date:"d/m/Y H:i" }}</td><td>{{ event.stage }}</td><td>{{ event.get_level_display }}</td><td>{{ event.message }}</td></tr>{% empty %}<tr><td colspan="4">Nenhum evento registrado.</td></tr>{% endfor %}</tbody></table></div>
+  {% include "blog/pagination.html" with page=events parameter="events" %}
+  <p>Envie <code>{{ site_url }}/blog/sitemap.xml</code> pelo formulário de atualização da conexão Google do domínio verificado. Isso não garante indexação nem posicionamento.</p>
+  {% for connection in connections %}
+  <form method="post" action="{% url 'google_refresh' connection.domain_id %}">{% csrf_token %}
+    <input type="hidden" name="sitemap" value="{{ site_url }}/blog/sitemap.xml">
+    <button class="btn yellow" type="submit">Enviar sitemap do blog e atualizar Search Console</button>
+  </form>
+  {% empty %}<p>Para ativar a integração, cadastre e verifique o domínio no Meu painel e conecte sua conta Google autorizada. O envio usa a fila Celery existente.</p>{% endfor %}
+</section>
+{% endblock %}
