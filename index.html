@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f8ff">
+  <meta name="description" content="Ferramentas gratuitas e privadas para calcular redes IP/CIDR, reduzir imagens e gerar QR Codes diretamente no navegador.">
+  <title>Lignet — ferramentas digitais que simplificam</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #102746;
+      --muted: #64748b;
+      --blue: #1769e0;
+      --blue-dark: #124daa;
+      --blue-pale: #eaf2ff;
+      --green: #19a777;
+      --line: #e5ebf4;
+      --surface: #fff;
+      --canvas: #f6f8fc;
+      --shadow: 0 20px 60px rgba(22, 51, 91, .09);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--ink); background: var(--canvas); }
+    button, input, select { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    a { color: inherit; text-decoration: none; }
+    .topbar {
+      position: sticky; top: 0; z-index: 10; height: 76px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 clamp(20px, 6vw, 92px); background: rgba(255,255,255,.88);
+      border-bottom: 1px solid rgba(229,235,244,.85); backdrop-filter: blur(16px);
+    }
+    .brand { display: inline-flex; align-items: center; gap: 11px; font-weight: 800; letter-spacing: -.04em; font-size: 1.18rem; }
+    .brand-mark { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 12px; color: white; background: linear-gradient(145deg,#247af3,#0954bd); box-shadow: 0 7px 16px #1769e044; }
+    .brand-mark svg { width: 20px; }
+    .nav { display: flex; gap: 30px; align-items: center; color: #52647e; font-weight: 600; font-size: .91rem; }
+    .nav a:hover { color: var(--blue); }
+    .nav .nav-cta { background: var(--blue); color: #fff; padding: 11px 17px; border-radius: 11px; box-shadow: 0 7px 15px #1769e033; }
+    .nav .nav-cta:hover { color: white; background: var(--blue-dark); }
+    .hero {
+      overflow: hidden; position: relative; padding: 84px 24px 110px;
+      background: radial-gradient(ellipse at 82% 18%, #d8e9ff 0, transparent 34%), linear-gradient(180deg,#fff 0%,#f4f8ff 100%);
+    }
+    .hero:before, .hero:after { content: ""; position: absolute; border: 1px solid #cfe1fc; border-radius: 50%; pointer-events: none; }
+    .hero:before { width: 470px; height: 470px; right: -110px; top: -210px; }
+    .hero:after { width: 340px; height: 340px; right: -45px; top: -145px; }
+    .hero-inner { max-width: 1120px; margin: auto; position: relative; z-index: 1; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; color: #1761c2; background: #e9f2ff; border: 1px solid #d8e8ff; border-radius: 30px; padding: 8px 12px; font-size: .77rem; font-weight: 750; letter-spacing: .04em; text-transform: uppercase; }
+    .eyebrow-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px #19a77720; }
+    h1 { max-width: 760px; margin: 25px 0 18px; font-size: clamp(2.55rem, 6vw, 4.6rem); line-height: 1.04; letter-spacing: -.065em; }
+    h1 span { color: var(--blue); }
+    .hero-copy { max-width: 610px; color: #5c6e87; line-height: 1.75; font-size: 1.08rem; }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 30px; }
+    .button { border: 0; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 9px; padding: 13px 18px; font-weight: 700; cursor: pointer; transition: .18s ease; }
+    .button-primary { background: var(--blue); color: white; box-shadow: 0 9px 20px #1769e033; }
+    .button-primary:hover { background: var(--blue-dark); transform: translateY(-1px); }
+    .button-secondary { color: #2d4767; background: white; border: 1px solid var(--line); }
+    .button-secondary:hover { border-color: #b8ccef; background: #fbfdff; }
+    .hero-note { display: flex; align-items: center; gap: 8px; margin-top: 25px; color: #708098; font-size: .87rem; }
+    .hero-note svg { color: var(--green); }
+    .section-wrap { max-width: 1120px; margin: -44px auto 0; padding: 0 24px 75px; position: relative; z-index: 2; }
+    .tool-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .tool-nav a { background: #fff; border: 1px solid var(--line); padding: 10px 14px; border-radius: 11px; color: #62738a; font-weight: 700; font-size: .88rem; box-shadow: 0 5px 14px #193e6810; }
+    .tool-nav a:hover { color: var(--blue); border-color: #c8daf4; }
+    .tool-card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); overflow: hidden; scroll-margin-top: 100px; }
+    .card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; padding: 28px 32px 22px; border-bottom: 1px solid #edf1f7; }
+    .tool-heading { display: flex; align-items: flex-start; gap: 15px; }
+    .tool-icon { width: 48px; height: 48px; flex: 0 0 48px; display: grid; place-items: center; border-radius: 15px; color: var(--blue); background: var(--blue-pale); }
+    .tool-icon.green { color: #13855f; background: #e8f7f1; }
+    .tool-icon svg { width: 23px; height: 23px; }
+    h2 { margin: 0 0 6px; font-size: 1.32rem; letter-spacing: -.035em; }
+    .card-subtitle { color: var(--muted); line-height: 1.55; margin: 0; font-size: .91rem; }
+    .privacy-pill { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; color: #217457; background: #effaf5; border: 1px solid #d7f1e5; border-radius: 30px; padding: 7px 10px; font-size: .75rem; font-weight: 700; }
+    .card-body { padding: 28px 32px 32px; }
+    .form-row { display: flex; align-items: end; gap: 12px; }
+    .field { flex: 1; min-width: 0; }
+    .field label { display: block; margin-bottom: 8px; color: #334964; font-size: .84rem; font-weight: 750; }
+    .field input, .field select { width: 100%; min-height: 48px; border: 1px solid #dbe3ee; outline: 0; border-radius: 11px; padding: 0 13px; color: #142d4d; background: white; transition: .16s ease; }
+    .field input:focus, .field select:focus { border-color: #79a9ef; box-shadow: 0 0 0 4px #1769e018; }
+    input::placeholder { color: #a3afbf; }
+    .form-row .button { min-height: 48px; }
+    .help-line { margin: 12px 0 0; color: #8290a3; font-size: .8rem; }
+    .error { color: #b42318; background: #fff2f0; border: 1px solid #ffdbd5; padding: 11px 13px; border-radius: 10px; margin: 16px 0 0; font-size: .88rem; }
+    .results { display: none; margin-top: 25px; }
+    .results.visible { display: block; }
+    .result-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .result-top h3 { margin: 0; font-size: 1rem; }
+    .result-tag { border-radius: 20px; padding: 6px 9px; color: #1761c2; background: #edf4ff; font-weight: 750; font-size: .74rem; }
+    .result-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); border: 1px solid var(--line); border-radius: 13px; overflow: hidden; }
+    .result-item { padding: 15px 16px; background: #fbfcfe; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); min-width: 0; }
+    .result-item:nth-child(3n) { border-right: 0; }
+    .result-item:nth-last-child(-n+3) { border-bottom: 0; }
+    .result-label { color: #8090a5; font-size: .75rem; margin-bottom: 6px; }
+    .result-value { color: #183554; font-weight: 750; font-size: .91rem; word-break: break-word; }
+    .copy { border: 0; background: none; color: var(--blue); font-size: .75rem; font-weight: 700; cursor: pointer; padding: 5px 0 0; }
+    .image-drop { border: 1.5px dashed #bdcde2; border-radius: 15px; background: #fbfdff; padding: 32px 20px; text-align: center; cursor: pointer; transition: .18s ease; }
+    .image-drop:hover, .image-drop.dragover { border-color: var(--blue); background: #f2f7ff; }
+    .upload-icon { width: 46px; height: 46px; display: grid; place-items: center; color: var(--blue); background: #eaf2ff; border-radius: 14px; margin: 0 auto 12px; }
+    .image-drop strong { display: block; margin-bottom: 5px; font-size: .96rem; }
+    .image-drop span { color: #8190a4; font-size: .82rem; }
+    .image-settings { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 14px; margin-top: 20px; }
+    .quality-value { float: right; color: var(--blue); }
+    input[type="range"] { padding: 0; min-height: 30px; accent-color: var(--blue); border: 0; box-shadow: none; }
+    .image-preview { display: none; margin-top: 20px; align-items: center; gap: 18px; padding: 15px; border: 1px solid var(--line); border-radius: 13px; background: #fbfcfe; }
+    .image-preview.visible { display: flex; }
+    .preview-img { width: 100px; height: 78px; object-fit: contain; border: 1px solid var(--line); border-radius: 9px; background: white; }
+    .preview-info { flex: 1; min-width: 0; }
+    .preview-info strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 5px; }
+    .preview-info span { color: var(--muted); font-size: .82rem; }
+    .savings { color: #13855f !important; font-weight: 750; }
+    .image-actions { display: flex; justify-content: flex-end; margin-top: 18px; }
+    .hidden { display: none !important; }
+    .below { max-width: 1120px; margin: 0 auto; padding: 0 24px 72px; }
+    .below-head { display: flex; justify-content: space-between; align-items: end; margin-bottom: 20px; }
+    .below-head h2 { font-size: 1.55rem; }
+    .below-head p { color: var(--muted); margin: 7px 0 0; font-size: .9rem; }
+    .feature-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+    .feature { background: white; border: 1px solid var(--line); border-radius: 15px; padding: 19px; }
+    .feature-icon { color: var(--blue); margin-bottom: 12px; }
+    .feature strong { display: block; font-size: .91rem; margin-bottom: 6px; }
+    .feature p { margin: 0; color: var(--muted); font-size: .82rem; line-height: 1.6; }
+    footer { border-top: 1px solid var(--line); background: #fff; padding: 25px 24px; color: #8290a3; font-size: .8rem; }
+    .footer-inner { max-width: 1120px; margin: auto; display: flex; justify-content: space-between; gap: 15px; }
+    .toast { position: fixed; z-index: 30; bottom: 22px; left: 50%; transform: translate(-50%,15px); opacity: 0; pointer-events: none; background: #142d4d; color: white; border-radius: 10px; padding: 11px 15px; font-size: .85rem; transition: .2s ease; box-shadow: 0 8px 24px #10274633; }
+    .toast.show { opacity: 1; transform: translate(-50%,0); }
+    .field textarea { width: 100%; min-height: 130px; resize: vertical; font: inherit; border: 1px solid #dbe3ee; border-radius: 11px; padding: 13px; color: var(--ink); background: white; }
+    .field textarea:focus { outline: 2px solid var(--blue); outline-offset: 2px; }
+    .qr-layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 28px; align-items: start; }
+    .qr-options { margin: 18px 0; }
+    .qr-preview { display: grid; justify-items: center; gap: 14px; border: 1px solid var(--line); border-radius: 15px; padding: 20px; background: #fbfcfe; text-align: center; }
+    .qr-preview p { color: var(--muted); font-size: .84rem; line-height: 1.6; margin: 0; }
+    .qr-preview canvas { display: block; width: 100%; height: auto; max-width: 240px; background: white; }
+    @media (max-width: 720px) {
+      .topbar { height: 66px; padding: 0 18px; }
+      .nav { gap: 13px; font-size: .8rem; }
+      .nav a:not(.nav-cta) { display: none; }
+      .nav .nav-cta { padding: 10px 12px; }
+      .hero { padding: 65px 20px 90px; }
+      .section-wrap { padding: 0 14px 56px; }
+      .card-head { padding: 22px 18px 18px; }
+      .card-body { padding: 21px 18px 23px; }
+      .privacy-pill { display: none; }
+      .form-row { align-items: stretch; flex-direction: column; }
+      .form-row .button { width: 100%; }
+      .result-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .result-item:nth-child(3n) { border-right: 1px solid var(--line); }
+      .result-item:nth-child(2n) { border-right: 0; }
+      .result-item:nth-last-child(-n+3) { border-bottom: 1px solid var(--line); }
+      .result-item:nth-last-child(-n+2) { border-bottom: 0; }
+      .image-settings { grid-template-columns: 1fr 1fr; }
+      .image-settings .field:last-child { grid-column: 1 / -1; }
+      .image-preview { align-items: flex-start; flex-wrap: wrap; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .footer-inner { flex-direction: column; }
+      .qr-layout { grid-template-columns: minmax(0, 1fr); }
+    }
+    @media (max-width: 420px) {
+      h1 { font-size: 2.45rem; }
+      .tool-heading { gap: 11px; }
+      .tool-icon { width: 42px; height: 42px; flex-basis: 42px; border-radius: 13px; }
+      .image-settings { grid-template-columns: 1fr; }
+      .image-settings .field:last-child { grid-column: auto; }
+      .image-preview .button { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) { *,*::before,*::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Lignet, página inicial">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 8.5 12 4l8 4.5v7L12 20l-8-4.5v-7Z" stroke="currentColor" stroke-width="1.8"/><path d="m8 10.5 4 2.2 4-2.2M12 13v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </span>
+      lignet<span style="color:#1769e0">.</span>
+    </a>
+    <nav class="nav" aria-label="Navegação principal">
+      <a href="#ferramentas">Ferramentas</a>
+      <a href="#sobre">Sobre</a>
+      <a class="nav-cta" href="#ip-cidr">Explorar ferramentas <span aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="eyebrow"><span class="eyebrow-dot"></span> Ferramentas digitais gratuitas</div>
+        <h1>Tecnologia que<br><span>facilita sua vida.</span></h1>
+        <p class="hero-copy">Ferramentas práticas para redes, imagens e QR Codes, feitas para entregar resultados claros — com privacidade e sem complicação.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#ip-cidr">Calcular IP/CIDR <span aria-hidden="true">→</span></a>
+          <a class="button button-secondary" href="#redutor">Reduzir uma imagem</a>
+          <a class="button button-secondary" href="#qrcode">Criar QR Code</a>
+        </div>
+        <div class="hero-note">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 5 6v5c0 4.6 3 8 7 10 4-2 7-5.4 7-10V6l-7-3Z" stroke="currentColor" stroke-width="1.8"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Seus dados e imagens são processados localmente no navegador.
+        </div>
+      </div>
+    </section>
+
+    <section class="section-wrap" id="ferramentas" aria-label="Ferramentas disponíveis">
+      <div class="tool-nav">
+        <a href="#ip-cidr">01 &nbsp; Calculadora IP/CIDR</a>
+        <a href="#redutor">02 &nbsp; Redutor de imagem</a>
+        <a href="#qrcode">03 &nbsp; Gerador de QR Code</a>
+      </div>
+
+      <article class="tool-card" id="ip-cidr">
+        <div class="card-head">
+          <div class="tool-heading">
+            <div class="tool-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 12h17M12 3c2.3 2.5 3.4 5.5 3.4 9S14.3 18.5 12 21M12 3c-2.3 2.5-3.4 5.5-3.4 9S9.7 18.5 12 21" stroke="currentColor" stroke-width="1.5"/></svg>
+            </div>
+            <div>
+              <h2>Calculadora IP/CIDR</h2>
+              <p class="card-subtitle">Analise redes IPv4 e IPv6, prefixos, faixas e endereços disponíveis.</p>
+            </div>
+          </div>
+          <span class="privacy-pill">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 5 6v5c0 4.6 3 8 7 10 4-2 7-5.4 7-10V6l-7-3Z" stroke="currentColor" stroke-width="2"/></svg>
+            Cálculo local
+          </span>
+        </div>
+        <div class="card-body">
+          <form id="ip-form">
+            <div class="form-row">
+              <div class="field">
+                <label for="ip-input">Endereço IP e prefixo ou máscara IPv4</label>
+                <input id="ip-input" name="network" type="text" spellcheck="false" autocomplete="off" placeholder="Ex.: 192.168.10.50/24" aria-describedby="ip-help">
+              </div>
+              <button class="button button-primary" type="submit">Calcular rede <span aria-hidden="true">→</span></button>
+            </div>
+            <p class="help-line" id="ip-help">Aceita IPv4 ou IPv6 em CIDR. Para IPv4, também aceita máscara decimal, por exemplo <code>192.168.10.50/255.255.255.0</code>.</p>
+          </form>
+          <div id="ip-error" class="error hidden" role="alert"></div>
+          <section class="results" id="ip-results" aria-live="polite">
+            <div class="result-top">
+              <h3>Detalhes da rede</h3>
+              <span class="result-tag" id="ip-version"></span>
+            </div>
+            <div class="result-grid" id="ip-result-grid"></div>
+          </section>
+        </div>
+      </article>
+
+      <article class="tool-card" id="redutor" style="margin-top:22px">
+        <div class="card-head">
+          <div class="tool-heading">
+            <div class="tool-icon green" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="3" stroke="currentColor" stroke-width="1.7"/><circle cx="8.5" cy="9" r="1.5" stroke="currentColor" stroke-width="1.5"/><path d="m4 17 5-5 3.5 3 2.5-2 5 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <h2>Redutor de imagens</h2>
+              <p class="card-subtitle">Comprima imagens no seu dispositivo e baixe uma cópia otimizada.</p>
+            </div>
+          </div>
+          <span class="privacy-pill">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 5 6v5c0 4.6 3 8 7 10 4-2 7-5.4 7-10V6l-7-3Z" stroke="currentColor" stroke-width="2"/></svg>
+            Imagem não enviada
+          </span>
+        </div>
+        <div class="card-body">
+          <input class="hidden" id="image-file" type="file" accept="image/jpeg,image/png,image/webp">
+          <div class="image-drop" id="image-drop" role="button" tabindex="0" aria-label="Selecionar imagem para reduzir">
+            <div class="upload-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <strong>Solte sua imagem aqui ou clique para escolher</strong>
+            <span>JPG, PNG ou WebP · até 20 MB</span>
+          </div>
+          <div id="image-error" class="error hidden" role="alert"></div>
+          <div class="image-settings">
+            <div class="field">
+              <label for="image-format">Formato de saída</label>
+              <select id="image-format">
+                <option value="image/webp">WebP (menor arquivo)</option>
+                <option value="image/jpeg">JPEG</option>
+                <option value="image/png">PNG</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="image-quality">Qualidade <span class="quality-value" id="quality-value">80%</span></label>
+              <input id="image-quality" type="range" min="10" max="100" value="80">
+            </div>
+            <div class="field">
+              <label for="image-width">Largura máxima (px)</label>
+              <input id="image-width" type="number" min="1" max="12000" placeholder="Manter original">
+            </div>
+          </div>
+          <div class="image-preview" id="image-preview">
+            <img class="preview-img" id="preview-image" alt="Prévia da imagem otimizada">
+            <div class="preview-info">
+              <strong id="preview-name"></strong>
+              <span id="preview-size"></span><br>
+              <span id="preview-savings" class="savings"></span>
+            </div>
+            <a class="button button-primary" id="download-image" download>Baixar imagem</a>
+          </div>
+          <div class="image-actions">
+            <button class="button button-primary hidden" id="compress-button" type="button">Reduzir imagem <span aria-hidden="true">→</span></button>
+          </div>
+        </div>
+      </article>
+      <article class="tool-card" id="qrcode" style="margin-top:22px">
+        <div class="card-head">
+          <div class="tool-heading">
+            <div class="tool-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h3v3h3v3h-6zM12 3v3M3 12h6M12 9v6M18 12h3M12 18v3"/></svg>
+            </div>
+            <div>
+              <h2>Gerador de QR Code</h2>
+              <p class="card-subtitle">Transforme um link ou texto em um QR Code pronto para compartilhar.</p>
+            </div>
+          </div>
+          <span class="privacy-pill">Geração local</span>
+        </div>
+        <div class="card-body">
+          <div class="qr-layout">
+            <form id="qr-form">
+              <div class="field">
+                <label for="qr-content">Link ou texto</label>
+                <textarea id="qr-content" placeholder="https://lignetbrasil.com.br ou seu texto aqui" autocomplete="off" spellcheck="false" aria-describedby="qr-help"></textarea>
+                <p class="help-line" id="qr-help">Até 1.000 bytes em UTF-8. Para abrir um site, inclua https:// no início do link. Acentos e emojis são aceitos.</p>
+              </div>
+              <div class="field qr-options">
+                <label for="qr-size">Tamanho do PNG</label>
+                <select id="qr-size">
+                  <option value="512">512 × 512 pixels</option>
+                  <option value="1024">1.024 × 1.024 pixels</option>
+                </select>
+              </div>
+              <button class="button button-primary" type="submit">Gerar QR Code <span aria-hidden="true">→</span></button>
+              <div id="qr-error" class="error hidden" role="alert"></div>
+            </form>
+            <div class="qr-preview">
+              <p id="qr-status" role="status">Seu QR Code aparecerá aqui.<br>Não precisa de cadastro.</p>
+              <canvas id="qr-canvas" class="hidden" role="img" aria-label="QR Code gerado para o conteúdo informado"></canvas>
+              <a id="qr-download" class="button button-primary hidden" download="lignet-qrcode.png">Baixar PNG</a>
+              <p>Preto no branco, com margem de leitura. Teste com a câmera do celular antes de imprimir.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="below" id="sobre">
+      <div class="below-head">
+        <div>
+          <h2>Simples por fora. Útil de verdade.</h2>
+          <p>Feito para ajudar no seu trabalho sem complicar o que deveria ser fácil.</p>
+        </div>
+      </div>
+      <div class="feature-grid">
+        <div class="feature">
+          <div class="feature-icon" aria-hidden="true">◈</div>
+          <strong>Privacidade em primeiro lugar</strong>
+          <p>Os cálculos de rede, a compressão de imagem e a geração de QR Codes acontecem diretamente no seu navegador.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon" aria-hidden="true">⌁</div>
+          <strong>Informação clara</strong>
+          <p>Resultados apresentados de forma legível, com os dados essenciais de cada ferramenta.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon" aria-hidden="true">▣</div>
+          <strong>Pronto para qualquer tela</strong>
+          <p>Uma experiência confortável no computador, tablet ou celular.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span>© 2026 Lignet Brasil · Tecnologia que facilita sua vida.</span>
+      <span>Ferramentas gratuitas · Processamento local</span>
+    </div>
+  </footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="vendor/qrcode.js"></script>
+  <script src="vendor/qrcode_UTF8.js"></script>
+  <script src="qr.js"></script>
+  <script>
+    const ipForm = document.querySelector("#ip-form");
+    const ipInput = document.querySelector("#ip-input");
+    const ipError = document.querySelector("#ip-error");
+    const ipResults = document.querySelector("#ip-results");
+    const resultGrid = document.querySelector("#ip-result-grid");
+    const toast = document.querySelector("#toast");
+    let toastTimer;
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    function parseIPv4(text) {
+      const parts = text.split(".");
+      if (parts.length !== 4 || parts.some(part => !/^\d{1,3}$/.test(part) || Number(part) > 255)) {
+        throw new Error("Digite um endereço IPv4 válido, com quatro números entre 0 e 255.");
+      }
+      return parts.reduce((n, part) => (n << 8n) | BigInt(Number(part)), 0n);
+    }
+
+    function ipv4Text(value) {
+      return [24n, 16n, 8n, 0n].map(shift => Number((value >> shift) & 255n)).join(".");
+    }
+
+    function parseIPv6(text) {
+      let input = text.toLowerCase();
+      if (input.includes(".")) {
+        const lastColon = input.lastIndexOf(":");
+        if (lastColon < 0) throw new Error("O endereço IPv6 informado não é válido.");
+        const v4 = parseIPv4(input.slice(lastColon + 1));
+        const high = Number((v4 >> 16n) & 65535n).toString(16);
+        const low = Number(v4 & 65535n).toString(16);
+        input = input.slice(0, lastColon + 1) + high + ":" + low;
+      }
+      if ((input.match(/::/g) || []).length > 1) throw new Error("O endereço IPv6 informado não é válido.");
+      const hasCompression = input.includes("::");
+      const sides = hasCompression ? input.split("::") : [input];
+      const left = sides[0] ? sides[0].split(":") : [];
+      const right = hasCompression && sides[1] ? sides[1].split(":") : [];
+      const groups = [...left, ...right];
+      if (groups.some(g => !/^[0-9a-f]{1,4}$/.test(g))) throw new Error("O endereço IPv6 informado não é válido.");
+      if (hasCompression ? groups.length >= 8 : groups.length !== 8) throw new Error("O endereço IPv6 informado não é válido.");
+      const fill = hasCompression ? Array(8 - groups.length).fill("0") : [];
+      const all = hasCompression ? [...left, ...fill, ...right] : groups;
+      return all.reduce((n, group) => (n << 16n) | BigInt(parseInt(group || "0", 16)), 0n);
+    }
+
+    function ipv6Text(value) {
+      const groups = [];
+      for (let i = 7; i >= 0; i--) groups.push(Number((value >> BigInt(i * 16)) & 65535n).toString(16));
+      let bestStart = -1, bestLength = 1;
+      for (let i = 0; i < 8;) {
+        if (groups[i] !== "0") { i++; continue; }
+        let end = i;
+        while (end < 8 && groups[end] === "0") end++;
+        if (end - i > bestLength) { bestStart = i; bestLength = end - i; }
+        i = end;
+      }
+      if (bestStart < 0) return groups.join(":");
+      const before = groups.slice(0, bestStart).join(":");
+      const after = groups.slice(bestStart + bestLength).join(":");
+      return before + "::" + after;
+    }
+
+    function prefixFromMask(mask) {
+      const value = parseIPv4(mask);
+      let prefix = 0, foundZero = false;
+      for (let bit = 31; bit >= 0; bit--) {
+        const one = ((value >> BigInt(bit)) & 1n) === 1n;
+        if (one && foundZero) throw new Error("A máscara IPv4 precisa ter bits contínuos (por exemplo, 255.255.255.0).");
+        if (one) prefix++; else foundZero = true;
+      }
+      return prefix;
+    }
+
+    function classifyIPv4(ip) {
+      const blocks = [
+        ["0.0.0.0", 8, "Reservado (rede atual)"], ["10.0.0.0", 8, "Privado"],
+        ["100.64.0.0", 10, "Espaço compartilhado (CGNAT)"], ["127.0.0.0", 8, "Loopback"],
+        ["169.254.0.0", 16, "Link-local"], ["172.16.0.0", 12, "Privado"],
+        ["192.0.0.0", 24, "Reservado (IETF)"], ["192.0.2.0", 24, "Documentação"],
+        ["192.88.99.0", 24, "Reservado (relay 6to4)"], ["192.168.0.0", 16, "Privado"],
+        ["198.18.0.0", 15, "Benchmark"], ["198.51.100.0", 24, "Documentação"],
+        ["203.0.113.0", 24, "Documentação"], ["224.0.0.0", 4, "Multicast"],
+        ["240.0.0.0", 4, "Reservado"], ["255.255.255.255", 32, "Broadcast limitado"]
+      ];
+      for (const [base, prefix, label] of blocks) {
+        const mask = prefix === 0 ? 0n : ((0xffffffffn << BigInt(32 - prefix)) & 0xffffffffn);
+        if ((ip & mask) === parseIPv4(base)) return label;
+      }
+      return "Público";
+    }
+
+    function classifyIPv6(ip) {
+      if (ip === 0n) return "Não especificado";
+      if (ip === 1n) return "Loopback";
+      if ((ip >> 120n) === 0xffn) return "Multicast";
+      if ((ip >> 121n) === 0x7en) return "Link-local";
+      if ((ip >> 121n) === 0x7dn) return "Único local (ULA)";
+      if ((ip >> 96n) === 0n) return "IPv4 compatível / reservado";
+      if ((ip >> 96n) === 0x20010db8n) return "Documentação";
+      if ((ip >> 96n) === 0x20010000n) return "Teredo";
+      if ((ip >> 96n) === 0x2002n) return "6to4";
+      if ((ip >> 96n) === 0x0064ff9bn) return "IPv4 traduzido (NAT64)";
+      if ((ip >> 125n) === 1n) return "Descartável";
+      if ((ip >> 96n) === 0x20010010n) return "ORCHID (reservado)";
+      if ((ip >> 96n) === 0x20010020n) return "ORCHIDv2";
+      if ((ip >> 96n) === 0x2001n) return "Reservado (IETF)";
+      if ((ip >> 96n) === 0x2000n) return "Global unicast";
+      return "Reservado / não global";
+    }
+
+    function addResult(label, value, copyable = true) {
+      const item = document.createElement("div");
+      item.className = "result-item";
+      const name = document.createElement("div");
+      name.className = "result-label";
+      name.textContent = label;
+      const val = document.createElement("div");
+      val.className = "result-value";
+      val.textContent = value;
+      item.append(name, val);
+      if (copyable && value) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "copy";
+        button.textContent = "Copiar";
+        button.addEventListener("click", async () => {
+          try { await navigator.clipboard.writeText(value); showToast("Copiado para a área de transferência."); }
+          catch { showToast("Não foi possível copiar. Selecione o valor e copie manualmente."); }
+        });
+        item.append(button);
+      }
+      resultGrid.append(item);
+    }
+
+    ipForm.addEventListener("submit", event => {
+      event.preventDefault();
+      ipError.classList.add("hidden");
+      ipResults.classList.remove("visible");
+      resultGrid.replaceChildren();
+      try {
+        const raw = ipInput.value.trim();
+        if (!raw) throw new Error("Informe um endereço IP e um prefixo para continuar.");
+        const slash = raw.indexOf("/");
+        if (slash !== raw.lastIndexOf("/")) throw new Error("Use apenas uma barra para separar o endereço do prefixo.");
+        const address = slash >= 0 ? raw.slice(0, slash).trim() : raw;
+        const suffix = slash >= 0 ? raw.slice(slash + 1).trim() : "";
+        const isV6 = address.includes(":");
+        const bits = isV6 ? 128 : 32;
+        let ip, prefix;
+        if (isV6) {
+          ip = parseIPv6(address);
+          prefix = suffix === "" ? 128 : /^\d{1,3}$/.test(suffix) ? Number(suffix) : NaN;
+        } else {
+          ip = parseIPv4(address);
+          if (!suffix) prefix = 32;
+          else if (suffix.includes(".")) prefix = prefixFromMask(suffix);
+          else prefix = /^\d{1,2}$/.test(suffix) ? Number(suffix) : NaN;
+        }
+        if (!Number.isInteger(prefix) || prefix < 0 || prefix > bits) {
+          throw new Error(`O prefixo precisa estar entre 0 e ${bits}${isV6 ? "" : " (ou ser uma máscara IPv4 válida)"}.`);
+        }
+        const hostBits = BigInt(bits - prefix);
+        const total = 1n << hostBits;
+        const mask = prefix === 0 ? 0n : (((1n << BigInt(bits)) - 1n) ^ (total - 1n));
+        const network = ip & mask;
+        const last = network + total - 1n;
+        const toText = isV6 ? ipv6Text : ipv4Text;
+        const versionText = isV6 ? "IPv6" : "IPv4";
+        document.querySelector("#ip-version").textContent = `${versionText} · /${prefix}`;
+        addResult("Endereço informado", `${toText(ip)}/${prefix}`);
+        addResult("Endereço de rede", toText(network));
+        addResult("Prefixo CIDR", `/${prefix}`);
+        addResult("Endereço inicial", toText(network));
+        addResult("Endereço final", toText(last));
+        addResult("Total de endereços", total.toLocaleString("pt-BR"));
+        addResult("Classificação", isV6 ? classifyIPv6(ip) : classifyIPv4(ip), false);
+        if (!isV6) {
+          const maskText = ipv4Text(mask);
+          const wildcardText = ipv4Text(0xffffffffn ^ mask);
+          const usableHosts = prefix === 32 ? 1n : prefix === 31 ? 2n : total > 2n ? total - 2n : 0n;
+          addResult("Máscara", maskText);
+          addResult("Wildcard", wildcardText);
+          addResult("Broadcast", ipv4Text(last));
+          addResult("Hosts utilizáveis", usableHosts.toLocaleString("pt-BR"));
+          if (prefix < 31) addResult("Faixa de hosts", `${ipv4Text(network + 1n)} – ${ipv4Text(last - 1n)}`);
+          else if (prefix === 31) addResult("Faixa de hosts", `${ipv4Text(network)} – ${ipv4Text(last)} (/31 ponto a ponto)`);
+          else addResult("Faixa de hosts", `${ipv4Text(network)} (/32 endereço único)`);
+        }
+        ipResults.classList.add("visible");
+      } catch (error) {
+        ipError.textContent = error instanceof Error ? error.message : "Não foi possível calcular essa rede.";
+        ipError.classList.remove("hidden");
+      }
+    });
+
+    const imageInput = document.querySelector("#image-file");
+    const imageDrop = document.querySelector("#image-drop");
+    const imageError = document.querySelector("#image-error");
+    const compressButton = document.querySelector("#compress-button");
+    const imageFormat = document.querySelector("#image-format");
+    const imageQuality = document.querySelector("#image-quality");
+    const qualityValue = document.querySelector("#quality-value");
+    const imageWidth = document.querySelector("#image-width");
+    const imagePreview = document.querySelector("#image-preview");
+    const previewImage = document.querySelector("#preview-image");
+    const downloadImage = document.querySelector("#download-image");
+    let selectedImage = null;
+    let outputUrl = null;
+
+    function formatBytes(bytes) {
+      if (bytes < 1024) return `${bytes} B`;
+      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+      return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+    }
+
+    function reportImageError(message = "") {
+      imageError.textContent = message;
+      imageError.classList.toggle("hidden", !message);
+    }
+
+    function selectImage(file) {
+      reportImageError();
+      imagePreview.classList.remove("visible");
+      if (outputUrl) URL.revokeObjectURL(outputUrl);
+      outputUrl = null;
+      if (!file) return;
+      if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+        selectedImage = null;
+        compressButton.classList.add("hidden");
+        reportImageError("Escolha uma imagem JPG, PNG ou WebP.");
+        return;
+      }
+      if (file.size > 20 * 1024 * 1024) {
+        selectedImage = null;
+        compressButton.classList.add("hidden");
+        reportImageError("O arquivo excede o limite de 20 MB.");
+        return;
+      }
+      selectedImage = file;
+      document.querySelector("#preview-name").textContent = file.name;
+      document.querySelector("#preview-size").textContent = `Original: ${formatBytes(file.size)}`;
+      compressButton.classList.remove("hidden");
+    }
+
+    imageDrop.addEventListener("click", () => imageInput.click());
+    imageDrop.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") { event.preventDefault(); imageInput.click(); }
+    });
+    imageInput.addEventListener("change", () => selectImage(imageInput.files[0]));
+    imageDrop.addEventListener("dragover", event => { event.preventDefault(); imageDrop.classList.add("dragover"); });
+    imageDrop.addEventListener("dragleave", () => imageDrop.classList.remove("dragover"));
+    imageDrop.addEventListener("drop", event => {
+      event.preventDefault();
+      imageDrop.classList.remove("dragover");
+      selectImage(event.dataTransfer.files[0]);
+    });
+    imageQuality.addEventListener("input", () => { qualityValue.textContent = `${imageQuality.value}%`; });
+    imageFormat.addEventListener("change", () => {
+      imageQuality.disabled = imageFormat.value === "image/png";
+      imageQuality.title = imageQuality.disabled ? "PNG é um formato sem perda; a qualidade não se aplica." : "";
+    });
+    imageFormat.dispatchEvent(new Event("change"));
+
+    compressButton.addEventListener("click", () => {
+      if (!selectedImage) return;
+      reportImageError();
+      compressButton.disabled = true;
+      compressButton.textContent = "Processando…";
+      const sourceUrl = URL.createObjectURL(selectedImage);
+      const image = new Image();
+      image.onload = () => {
+        try {
+          const maxWidth = imageWidth.value ? Number(imageWidth.value) : image.naturalWidth;
+          if (!Number.isInteger(maxWidth) || maxWidth < 1 || maxWidth > 12000) throw new Error("Informe uma largura entre 1 e 12.000 pixels.");
+          const scale = Math.min(1, maxWidth / image.naturalWidth);
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+          canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+          const context = canvas.getContext("2d");
+          if (!context) throw new Error("Seu navegador não conseguiu iniciar o processamento da imagem.");
+          if (imageFormat.value === "image/jpeg") {
+            context.fillStyle = "#ffffff";
+            context.fillRect(0, 0, canvas.width, canvas.height);
+          }
+          context.drawImage(image, 0, 0, canvas.width, canvas.height);
+          const quality = Number(imageQuality.value) / 100;
+          canvas.toBlob(blob => {
+            URL.revokeObjectURL(sourceUrl);
+            if (!blob) {
+              reportImageError("Não foi possível gerar a imagem. Tente outro formato.");
+              compressButton.disabled = false;
+              compressButton.innerHTML = 'Reduzir imagem <span aria-hidden="true">→</span>';
+              return;
+            }
+            if (outputUrl) URL.revokeObjectURL(outputUrl);
+            outputUrl = URL.createObjectURL(blob);
+            previewImage.src = outputUrl;
+            const ext = imageFormat.value === "image/jpeg" ? "jpg" : imageFormat.value.split("/")[1];
+            const stem = selectedImage.name.replace(/\.[^.]+$/, "");
+            downloadImage.href = outputUrl;
+            downloadImage.download = `${stem}-otimizada.${ext}`;
+            document.querySelector("#preview-size").textContent = `${canvas.width} × ${canvas.height} px · ${formatBytes(blob.size)}`;
+            const delta = selectedImage.size > 0 ? ((selectedImage.size - blob.size) / selectedImage.size) * 100 : 0;
+            document.querySelector("#preview-savings").textContent = delta >= 0
+              ? `${delta.toFixed(1)}% menor que o original`
+              : `${Math.abs(delta).toFixed(1)}% maior que o original`;
+            imagePreview.classList.add("visible");
+            compressButton.disabled = false;
+            compressButton.innerHTML = 'Reduzir novamente <span aria-hidden="true">↻</span>';
+          }, imageFormat.value, imageFormat.value === "image/png" ? undefined : quality);
+        } catch (error) {
+          URL.revokeObjectURL(sourceUrl);
+          reportImageError(error instanceof Error ? error.message : "Ocorreu um erro ao processar a imagem.");
+          compressButton.disabled = false;
+          compressButton.innerHTML = 'Reduzir imagem <span aria-hidden="true">→</span>';
+        }
+      };
+      image.onerror = () => {
+        URL.revokeObjectURL(sourceUrl);
+        reportImageError("Não foi possível abrir esta imagem. Tente outro arquivo.");
+        compressButton.disabled = false;
+        compressButton.innerHTML = 'Reduzir imagem <span aria-hidden="true">→</span>';
+      };
+      image.src = sourceUrl;
+    });
+  </script>
+</body>
+</html>
