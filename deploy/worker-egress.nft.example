@@ -1,0 +1,15 @@
+# Example for a native worker running as dedicated UID 10001.
+# DO NOT APPLY BLINDLY. Adapt DB, Redis and resolver addresses first.
+# For Docker, equivalent rules must run in the container network namespace
+# or the host's container-forward chain (host output UID rules do not cover it).
+# Only PostgreSQL and Redis may reach the dedicated loopback endpoints;
+# target URLs accept ports 80/443, so these exceptions cannot be used by audits.
+table inet lignet_worker {
+  chain output {
+    type filter hook output priority 0; policy accept;
+    meta skuid 10001 ip daddr 127.0.0.1 tcp dport { 5432, 6379 } accept
+    # If required, allow only the actual DNS resolver on UDP/TCP 53 here.
+    meta skuid 10001 ip daddr { 0.0.0.0/8, 10.0.0.0/8, 100.64.0.0/10, 127.0.0.0/8, 169.254.0.0/16, 172.16.0.0/12, 192.168.0.0/16, 224.0.0.0/4, 240.0.0.0/4 } reject
+    meta skuid 10001 ip6 daddr { ::/128, ::1/128, fc00::/7, fe80::/10, ff00::/8, ::ffff:0:0/96 } reject
+  }
+}

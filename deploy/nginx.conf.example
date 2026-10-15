@@ -1,0 +1,28 @@
+# Example only. Merge with the existing TLS virtual host; do not replace it.
+# TLS certificate configuration remains the operator's existing configuration.
+# Upstream Django must be inaccessible to untrusted clients.
+upstream lignet_django { server 127.0.0.1:8000; }
+# Inside the existing HTTPS server block:
+# client_max_body_size 6m;
+# location = /integracoes/google/callback/ {
+#     access_log off; # OAuth authorization codes must not enter access logs.
+#     proxy_set_header Host $host;
+#     proxy_set_header X-Forwarded-Proto https;
+#     proxy_set_header X-Real-IP $remote_addr;
+#     proxy_pass http://lignet_django;
+# }
+# location /static/ {
+#     alias /path/to/collected/static/;
+#     autoindex off;
+# }
+# location ~ ^/(ferramentas|relatorios|painel|conta|dominios|integracoes|admin)/ {
+#     proxy_set_header Host $host;
+#     proxy_set_header X-Forwarded-Proto https;
+#     proxy_set_header X-Real-IP $remote_addr;
+#     proxy_pass http://lignet_django;
+# }
+# location = /sitemap.xml { proxy_set_header Host $host; proxy_set_header X-Forwarded-Proto https; proxy_set_header X-Real-IP $remote_addr; proxy_pass http://lignet_django; }
+# location = /robots.txt { proxy_set_header Host $host; proxy_set_header X-Forwarded-Proto https; proxy_set_header X-Real-IP $remote_addr; proxy_pass http://lignet_django; }
+# Preserve the existing location /, qr.js and vendor assets.
+# Do not forward a caller-controlled X-Forwarded-For as REMOTE_ADDR.
+# Set TRUST_HTTPS_PROXY=true only when this proxy is the sole upstream entry.

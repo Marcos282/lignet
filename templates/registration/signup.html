@@ -1,0 +1,1 @@
+{% extends 'base.html' %}{% block content %}<div class="shell"><section class="panel narrow"><h1>Seu próximo passo começa aqui.</h1><p>Crie sua conta para verificar domínios e acompanhar integrações.</p><form method="post">{% csrf_token %}{{ form.as_p }}<button class="btn yellow">Criar conta gratuita</button></form></section></div>{% endblock %}

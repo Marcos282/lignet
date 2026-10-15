@@ -1,0 +1,60 @@
+# Invoke from repository root: docker compose --env-file .env -f deploy/compose.yaml ...
+# No host ports for database or Redis. Supply a strong POSTGRES_PASSWORD in .env.
+x-app: &app
+  build:
+    context: ..
+    dockerfile: deploy/Dockerfile
+  env_file: ../.env
+  environment:
+    POSTGRES_HOST: db
+    REDIS_URL: redis://redis:6379/0
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+  restart: unless-stopped
+  read_only: true
+  tmpfs:
+    - /tmp:size=64m,noexec,nosuid
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+services:
+  web:
+    <<: *app
+    ports: ["127.0.0.1:8000:8000"]
+    volumes: ["static:/app/staticfiles"]
+  worker:
+    <<: *app
+    command: ["celery", "-A", "lignet", "worker", "--loglevel=INFO", "--concurrency=2", "--max-tasks-per-child=100", "--max-memory-per-child=262144"]
+    mem_limit: 768m
+    cpus: 1.5
+    pids_limit: 96
+  beat:
+    <<: *app
+    command: ["celery", "-A", "lignet", "beat", "--loglevel=INFO", "--schedule=/tmp/celerybeat-schedule"]
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-lignet}
+      POSTGRES_USER: ${POSTGRES_USER:-lignet}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Configure POSTGRES_PASSWORD}
+    volumes: ["postgres:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      retries: 12
+    restart: unless-stopped
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb", "--maxmemory-policy", "noeviction"]
+    volumes: ["redis:/data"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 12
+    restart: unless-stopped
+volumes:
+  postgres:
+  redis:
+  static:
