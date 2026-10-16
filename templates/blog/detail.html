@@ -19,7 +19,7 @@
     <p class="private-note">Redação Lignet Brasil · {{ article.published_at|date:"d/m/Y" }} · Atualizado em {{ article.updated_at|date:"d/m/Y" }}</p>
     {% if article.generated %}<p class="blog-disclosure">Texto produzido com auxílio de IA. Consulte as referências e confirme as orientações para o seu ambiente; geração automática não equivale a verificação factual.</p>{% endif %}
   </header>
-  {% if article.cover %}<figure class="blog-cover"><img src="{{ article.cover.image.url }}" alt="{{ article.cover.alt }}" width="{{ article.cover.image.width }}" height="{{ article.cover.image.height }}"><figcaption>Foto: {{ article.cover.credit }}. Imagem ilustrativa.</figcaption></figure>{% endif %}
+  {% if article.cover %}<figure class="blog-cover"><img src="{{ article.cover.image.url }}" alt="{{ article.cover.alt }}" width="{{ article.cover.image.width }}" height="{{ article.cover.image.height }}"><figcaption>{% if article.cover.generated %}Ilustração gerada por IA, não uma fotografia ou evidência de um acontecimento. {{ article.cover.credit }}.{% else %}Foto: {{ article.cover.credit }}. Imagem ilustrativa.{% endif %}</figcaption></figure>{% endif %}
   <div class="blog-prose">{{ article.body|linebreaks }}</div>
   <aside class="panel blog-tools"><h2>Da leitura para a prática</h2><p>Use as ferramentas relacionadas a este assunto, respeitando os limites e avisos de cada uma.</p>
     {% for tool in tools %}<a class="btn btn-outline-primary" href="{{ tool.url }}">{{ tool.name }} →</a>{% empty %}<a href="/">Conheça as ferramentas Lignet →</a>{% endfor %}

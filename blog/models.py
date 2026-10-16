@@ -12,6 +12,7 @@ class Category(models.Model):
     slug = models.SlugField(unique=True)
     topics = models.CharField("Termos para selecionar pautas", max_length=400, blank=True,
                               help_text="Termos separados por vírgula.")
+    independent_topic = models.BooleanField("Tema editorial independente das ferramentas", default=False)
 
     def __str__(self):
         return self.name
@@ -33,6 +34,8 @@ class Photo(Timestamped):
     rights_confirmed = models.BooleanField("Confirmo que posso publicar esta foto", default=False)
     allow_automatic = models.BooleanField("Disponível para artigos automáticos desta categoria", default=True,
                                          help_text="Use fotos genéricas que não induzam a uma associação factual falsa.")
+    generated = models.BooleanField("Ilustração gerada por IA", default=False, editable=False)
+    model_name = models.CharField("Modelo local da imagem", max_length=200, blank=True, editable=False)
 
     def clean(self):
         super().clean()
@@ -77,6 +80,10 @@ class EditorialSettings(models.Model):
     id = models.PositiveSmallIntegerField(primary_key=True, default=1, editable=False)
     enabled = models.BooleanField("Habilitar rotina diária", default=False)
     automatic = models.BooleanField("Publicação automática", default=True)
+    ai_enabled = models.BooleanField("Gerar novos textos com IA local", default=True,
+                                    help_text="Desligar não pausa o Cron nem as publicações já agendadas.")
+    images_enabled = models.BooleanField("Gerar capas com IA local", default=False,
+                                        help_text="Exige ComfyUI local e checkpoint com licença conferida.")
     daily_limit = models.PositiveSmallIntegerField("Limite diário de artigos e publicações", default=3,
                                                   validators=[MinValueValidator(1), MaxValueValidator(20)])
     page_size = models.PositiveSmallIntegerField("Artigos por página", default=6,
@@ -149,6 +156,14 @@ class Article(Timestamped):
     approved_at = models.DateTimeField("Aprovação", null=True, blank=True, editable=False)
     published_at = models.DateTimeField("Publicado em", null=True, blank=True, editable=False)
     generated = models.BooleanField("Gerado com IA", default=False, editable=False)
+    manual_approval = models.BooleanField(
+        "Exigir minha aprovação manual", default=True,
+        help_text="Marcado: o Cron não aprova este artigo. Artigos novos do painel usam esta opção por padrão.")
+    image_prompt = models.TextField("Descrição da ilustração para IA", blank=True, max_length=2000)
+    image_job = models.CharField(max_length=100, blank=True, editable=False)
+    image_model = models.CharField(max_length=200, blank=True, editable=False)
+    image_requested_at = models.DateTimeField(null=True, blank=True, editable=False)
+    image_retry_at = models.DateTimeField(null=True, blank=True, editable=False)
     references = models.JSONField("Referências", default=list,
                                  help_text='Lista JSON de URLs públicas, por exemplo ["https://example.org/guia"].')
     objects = ArticleQuerySet.as_manager()

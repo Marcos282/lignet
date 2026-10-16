@@ -6,8 +6,8 @@
 - 20 guias originais em português, sem coleta de notícias para esse primeiro lote.
   Os textos explicam as ferramentas reais, trazem limites e referências públicas.
 - **Aprovação/publicação automática por padrão; retirada somente pelo painel.**
-  Não há publicação sem capa própria autorizada. Os textos aguardam a biblioteca
-  de fotos quando não houver imagem da categoria disponível.
+  Não há publicação sem capa autorizada. Pode ser uma foto própria ou uma
+  ilustração gerada pelo modelo local, identificada publicamente como IA.
 - Rotina desabilitada até o operador concluir instalação, fotos e horários.
   Configuração de 1 a 20 artigos por dia, tamanho de página de 1 a 50 e horário
   inicial da geração. Valores iniciais: 3 por dia, 6 por página, geração às 06h.
@@ -137,7 +137,9 @@ das notícias nem download de suas imagens.
 
 A seleção considera termos inteiros normalizados, categoria e relação com
 ferramentas reais. O método é heurístico e auditável, não um classificador
-treinado. Pautas sem termos relacionados às ferramentas recebem score zero.
+treinado. Pautas sem termos relacionados às ferramentas recebem score zero,
+exceto categorias marcadas como tema independente: nelas os termos da categoria
+também permitem selecionar pautas.
 Links normalizados são deduplicados por hash. Resumos ficam limitados a 1.400
 caracteres. Feeds, redirecionamentos e DNS usam os bloqueios SSRF existentes.
 
@@ -151,6 +153,22 @@ automática não é revisão factual humana e pode produzir erros.
 
 ## Cron e operação
 
+### Aprovação manual e prioridade dos novos artigos
+
+O campo **Exigir minha aprovação manual** é marcado por padrão para artigos
+criados no painel. Eles permanecem pendentes mesmo com a publicação automática
+habilitada, até a ação de aprovação do administrador. Não ocupam horários nem
+bloqueiam a fila automática. Artigos criados pelo Ollama e pelo lote científico
+entram sem essa exigência, mas continuam dependendo de capa autorizada, fontes
+permitidas, rotina habilitada, publicação automática e limites diários.
+
+A migração `0004` mantém os artigos existentes sem marcação de IA na aprovação
+manual e libera os identificados como gerados por IA para o fluxo automático,
+inclusive os dez textos já cadastrados. Não altera estados, capas, datas nem
+horários existentes. Artigos já aprovados/agendados mantêm suas reservas; os
+novos usam os próximos horários livres. Artigos retirados continuam retirados.
+Para mudar a exigência individual, use o campo no formulário do artigo.
+
 Execute como o mesmo usuário do serviço, com o mesmo `.env`:
 
 ```bash
@@ -160,7 +178,137 @@ Execute como o mesmo usuário do serviço, com o mesmo `.env`:
 No painel `/admin/blog/editorialsettings/`, habilite a rotina após cadastrar
 fotos, fontes e horários. Mantenha publicação automática ativada.
 O primeiro lote pode ser agendado mesmo sem fontes ou Ollama, pois os 20 guias
-já foram preparados. Geração diária nova depende desses dois componentes.
+já foram preparados. Geração por feeds depende de fontes autorizadas e Ollama;
+os temas do lote científico também permitem geração original sem feeds.
+
+## Lote de dez artigos e temas científicos
+
+### Fontes internacionais de astronomia
+
+Execute uma vez após atualizar o código:
+
+```bash
+.venv/bin/python manage.py blog_sources_astronomy
+```
+
+O comando cadastra NASA, Space.com, Astronomy Magazine, Sky & Telescope, ESA
+Space Science, Universe Today e NASA Science com URLs RSS consultadas em
+15/10/2026. São URLs de feed, não as páginas iniciais com parâmetros de campanha.
+Space.com usa `/feeds.xml`, Universe Today usa `/rss.xml` e ESA usa o caminho
+atual `/rssfeed/Science_Exploration/Space_Science`.
+
+Na leitura direta com `feedparser`, NASA, Astronomy Magazine, Sky & Telescope,
+ESA e Universe Today retornaram HTTP 200 e entradas válidas. Space.com retornou
+HTTP 403 e NASA Science retornou XML inválido: o comando mostra esses dois
+avisos. Mantenha essas duas fontes desativadas até a disponibilidade regular
+ser restabelecida pelo editor; não contorne bloqueios nem altere o XML recebido.
+O cadastro não testa a rede a cada execução nem garante disponibilidade futura.
+
+As fontes novas ficam **desativadas e sem autorização presumida**. O operador
+deve conferir as condições de cada editor, marcar a autorização de uso editorial
+e habilitar coleta/publicação no admin. RSS disponível não transfere direitos
+de reprodução, inclusive para material NASA/ESA que possa conter créditos de
+terceiros. Não acessamos páginas bloqueadas, paywalls nem copiamos fotos.
+
+O cadastro é idempotente e preserva as escolhas existentes do administrador.
+Termos em português e inglês permitem selecionar pautas dos feeds em inglês;
+os artigos continuam sendo redigidos em português. Títulos administrativos
+sem relação com a categoria recebem score zero. Só título e resumo limitado
+são usados como contexto, com o link original como referência. As imagens são
+locais/sintéticas ou próprias, não retiradas das notícias. Disponibilidade dos
+feeds e termos podem mudar: erros continuam registrados no histórico.
+
+Depois de atualizar o código e aplicar as migrações:
+
+```bash
+.venv/bin/python manage.py blog_seed_science
+```
+
+O comando persiste **exatamente dez textos completos**: quatro de astronomia,
+três de utopia e três de inteligência artificial. São textos originais preparados
+com auxílio do assistente, não resultados de uma execução verificada do Ollama.
+Incluem referências de apoio e prompts de capa. Não gera imagens nem publica
+imediatamente; ficam pendentes até receber capa válida. É idempotente, não altera
+artigos editados/retirados e não habilita a rotina sozinho.
+
+As três categorias ficam marcadas como temas independentes das ferramentas.
+Com novos textos por IA habilitados, o ciclo diário tenta primeiro um artigo
+temático; as demais vagas são preenchidas por feeds e, quando necessário, por
+novos temas. As categorias são alternadas conforme o estoque criado. Desmarque
+o campo de tema independente na categoria para excluí-la dessa geração.
+Ollama recebe uma base educativa e títulos recentes para buscar novos recortes;
+não consulta notícias atuais nem verifica links por conta própria. Similaridade
+e validação de formato não comprovam fatos. A geração não é infinita garantida:
+um modelo pode falhar ou repetir conteúdo e a tentativa será registrada.
+
+### Capas com ComfyUI local
+
+O adaptador usa a API padrão do **ComfyUI**, um workflow fixo para checkpoint
+**Stable Diffusion 1.x**, tamanho 768 × 512 e uma imagem por artigo. Não é
+compatível por configuração apenas com Flux, SDXL ou checkpoints que exigem
+outros nós. Instale o ComfyUI em ambiente separado seguindo a
+[documentação oficial](https://docs.comfy.org/installation/manual_install).
+Confira RAM, GPU/VRAM e disco **no servidor de produção**, não na estação de
+desenvolvimento. CPU pode ser muito lenta; não há promessa de tempo de geração.
+
+Baixe um checkpoint de origem confiável cuja licença permita o uso pretendido,
+instale em `ComfyUI/models/checkpoints/` e configure o nome exato, sem caminho:
+
+```dotenv
+BLOG_COMFY_URL=http://127.0.0.1:8188
+BLOG_IMAGE_CHECKPOINT=nome-real-do-modelo.safetensors
+BLOG_IMAGE_LICENSE_CONFIRMED=true
+```
+
+Não use o nome do exemplo como se fosse um modelo fornecido. O código não
+inclui checkpoint, não presume licença e não instala os serviços. Revise também
+a licença do modelo de texto. Não há API paga, chave de provedor ou vínculo
+com o pagamento deste assistente; continuam existindo custos do servidor.
+
+Execute Ollama e ComfyUI como serviços do sistema, sob usuário sem privilégios,
+com inicialização automática. Não dependa de um terminal SSH aberto.
+ComfyUI deve escutar somente em `127.0.0.1:8188`, sem proxy público.
+No contêiner, loopback significa o próprio contêiner: este exemplo pressupõe
+instalação nativa dos modelos e do Django no mesmo host.
+
+Verifique antes de habilitar:
+
+```bash
+curl --fail http://127.0.0.1:11434/api/tags
+curl --fail http://127.0.0.1:8188/object_info/CheckpointLoaderSimple
+```
+
+No admin editorial, há três controles distintos:
+
+- **Rotina habilitada**: controla todo o processamento do Cron.
+- **Gerar novos textos com IA local**: desliga só os novos textos.
+- **Gerar capas com IA local**: ativa a fila de ilustrações; inicialmente desligado.
+
+Mantenha a rotina e a publicação automática habilitadas para publicar o estoque.
+O Cron publica primeiro os artigos agendados já vencidos e só depois tenta os
+modelos. Desligar geração ou uma falha esperada nos modelos não remove o estoque,
+não cancela os horários e não desliga o Cron. A suspensão da hospedagem, disco
+cheio, banco indisponível ou falha do próprio Cron continuam podendo parar o site.
+
+Na primeira execução, as capas são enfileiradas; em execuções seguintes, o
+comando consulta o histórico sem esperar a renderização. Os uploads são
+validados e reexportados pelas mesmas proteções da biblioteca de fotos.
+A ilustração registra o modelo enviado no trabalho, não é reutilizada
+automaticamente em outro artigo e recebe legenda explícita de IA, nunca de
+observação astronômica real. O operador continua responsável pela licença e
+pela adequação editorial da saída.
+
+Erro de imagem registra evento e espera uma hora antes de verificar novamente.
+Um trabalho sem conclusão por duas horas é sinalizado; seu identificador é
+mantido para não reenviar renderizações caras repetidamente. Se o ComfyUI perdeu
+o histórico ou reiniciou, confira a fila antes de limpar o identificador com
+uma operação administrativa no banco; alternativamente envie uma capa manual
+no artigo. Não há substituição silenciosa por imagem de terceiros.
+
+Criar dez textos não significa gerar dez imagens imediatamente. Cada execução
+processa no máximo o limite diário de capas. O comando `blog_run` pode retornar
+erro parcial para alertar o monitoramento, mesmo quando publicou artigos prontos
+com sucesso. O Cron padrão continuará iniciando as próximas execuções.
 
 Crie uma pasta de logs protegida, de propriedade do usuário do serviço. Copie
 a entrada de [blog.cron.example](../deploy/blog.cron.example) para `crontab -e`,

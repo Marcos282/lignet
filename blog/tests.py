@@ -1,4 +1,5 @@
 import json
+from importlib import import_module
 from datetime import time, timedelta
 from io import BytesIO, StringIO
 from tempfile import TemporaryDirectory
@@ -7,9 +8,11 @@ from xml.etree import ElementTree
 
 from django.contrib import admin
 from django.contrib.auth import get_user_model
+from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
+from django.db import connection
 from django.test import TestCase, override_settings
 from django.utils import timezone
 from PIL import Image
@@ -54,7 +57,8 @@ class BlogTests(TestCase):
         fields = dict(title="Como verificar a conectividade de uma rede", slug="guia-ping",
                       body="Texto original sobre ping e conectividade.\n\n" * 35,
                       excerpt="Um guia de diagnóstico com contexto, limitações e ferramentas para verificar sua rede.",
-                      category=self.category, references=["https://www.rfc-editor.org/rfc/rfc792"])
+                      category=self.category, manual_approval=False,
+                      references=["https://www.rfc-editor.org/rfc/rfc792"])
         fields.update(overrides)
         return Article.objects.create(**fields)
 
@@ -106,6 +110,65 @@ class BlogTests(TestCase):
         self.assertEqual(article.status, "scheduled")
         self.assertEqual(article.cover, photo)
         self.assertIsNotNone(article.approved_at)
+
+    def test_manual_pending_does_not_block_new_automatic_articles_or_move_existing_schedule(self):
+        photo = self.photo()
+        booked = self.article(slug="already-booked", cover=photo)
+        approve(booked, self.config)
+        booked.refresh_from_db()
+        original_slot = booked.scheduled_at
+        manual = self.article(slug="manual-first", manual_approval=True, cover=photo)
+        automatic = self.article(slug="automatic-new", generated=True, cover=photo)
+        auto_approve_pending(self.config, EditorialRun.objects.create())
+        manual.refresh_from_db()
+        automatic.refresh_from_db()
+        booked.refresh_from_db()
+        self.assertEqual(manual.status, "pending")
+        self.assertIsNone(manual.approved_at)
+        self.assertIsNone(manual.scheduled_at)
+        self.assertEqual(automatic.status, "scheduled")
+        self.assertEqual(booked.scheduled_at, original_slot)
+        self.assertGreater(automatic.scheduled_at, original_slot)
+        approve(manual, self.config)
+        manual.refresh_from_db()
+        self.assertEqual(manual.status, "scheduled")
+        self.assertGreater(manual.scheduled_at, automatic.scheduled_at)
+
+    def test_admin_article_defaults_to_manual_approval(self):
+        self.assertTrue(Article().manual_approval)
+
+    def test_migration_separates_existing_articles_without_rescheduling(self):
+        manual = self.article(slug="existing-manual", manual_approval=True)
+        generated = self.article(slug="existing-ai", generated=True, manual_approval=True)
+        withdrawn = self.article(slug="withdrawn-ai", generated=True, manual_approval=True, status="withdrawn")
+        scheduled = self.article(slug="scheduled-manual", manual_approval=True, cover=self.photo())
+        approve(scheduled, self.config)
+        scheduled.refresh_from_db()
+        original_slot = scheduled.scheduled_at
+        migration = import_module("blog.migrations.0004_article_manual_approval")
+        migration.separate_editorial_flows(apps, connection.schema_editor())
+        for article in (manual, generated, withdrawn, scheduled):
+            article.refresh_from_db()
+        self.assertTrue(manual.manual_approval)
+        self.assertFalse(generated.manual_approval)
+        self.assertEqual(generated.status, "pending")
+        self.assertEqual(withdrawn.status, "withdrawn")
+        self.assertTrue(scheduled.manual_approval)
+        self.assertEqual(scheduled.status, "scheduled")
+        self.assertEqual(scheduled.scheduled_at, original_slot)
+
+    def test_manual_queue_cannot_starve_automatic_approval_batch(self):
+        photo = self.photo()
+        Article.objects.bulk_create([
+            Article(title="Artigo manual", slug=f"manual-{i}", body="Texto manual", excerpt="Resumo manual",
+                    category=self.category, cover=photo, references=["https://example.org/"])
+            for i in range(101)
+        ])
+        automatic = self.article(cover=photo)
+        auto_approve_pending(self.config, EditorialRun.objects.create())
+        automatic.refresh_from_db()
+        self.assertEqual(automatic.status, "scheduled")
+        self.assertEqual(Article.objects.filter(manual_approval=True, status="pending").count(), 101)
 
     def test_withdrawn_never_automatically_republished(self):
         self.photo()

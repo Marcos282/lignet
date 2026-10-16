@@ -14,6 +14,7 @@
     <a href="{% url 'dashboard' %}">Google Search Console</a>
   </nav>
   <p>Rotina: {{ config.enabled|yesno:"habilitada,desabilitada" }} · Publicação automática: {{ config.automatic|yesno:"sim,não" }} · Limite diário: {{ config.daily_limit|default:"não configurado" }}. Horários no fuso do projeto.</p>
+  <p>Novos textos com IA local: {{ config.ai_enabled|yesno:"sim,não" }} · Capas com IA local: {{ config.images_enabled|yesno:"sim,não" }}. A publicação de artigos prontos independe dos modelos e da assinatura do assistente.</p>
   <h2>Execuções</h2><div class="table-wrap"><table><thead><tr><th>Início</th><th>Estado</th><th>Encontradas</th><th>Produzidos</th><th>Publicados</th></tr></thead><tbody>
   {% for run in runs %}<tr><td>{{ run.started_at|date:"d/m/Y H:i" }}</td><td>{{ run.get_status_display }}</td><td>{{ run.found }}</td><td>{{ run.produced }}</td><td>{{ run.published }}</td></tr>{% empty %}<tr><td colspan="5">Nenhuma execução registrada.</td></tr>{% endfor %}</tbody></table></div>
   {% include "blog/pagination.html" with page=runs parameter="page" %}

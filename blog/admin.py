@@ -7,12 +7,13 @@ from .services import approve, event, withdraw
 
 @admin.register(Article)
 class ArticleAdmin(admin.ModelAdmin):
-    list_display = ["title", "category", "status", "cover", "generated", "scheduled_at", "published_at"]
-    list_filter = ["status", "category", "generated"]
+    list_display = ["title", "category", "status", "manual_approval", "cover", "generated", "scheduled_at", "published_at"]
+    list_filter = ["status", "manual_approval", "category", "generated"]
     search_fields = ["title", "body", "keywords__name"]
     prepopulated_fields = {"slug": ("title",)}
     filter_horizontal = ["keywords"]
-    readonly_fields = ["status", "approved_at", "published_at", "generated", "item", "created_at", "updated_at"]
+    readonly_fields = ["status", "approved_at", "published_at", "generated", "item", "created_at", "updated_at",
+                       "image_job", "image_model", "image_requested_at", "image_retry_at"]
     actions = ["approve_articles", "withdraw"]
 
     def has_delete_permission(self, request, obj=None):
@@ -46,7 +47,9 @@ class ArticleAdmin(admin.ModelAdmin):
             obj.status = "pending"
             obj.approved_at = None
             obj.scheduled_at = None
-            self.message_user(request, "Alterações enviadas novamente ao fluxo editorial automático.", messages.WARNING)
+            notice = ("Alterações aguardando sua aprovação manual." if obj.manual_approval
+                      else "Alterações enviadas novamente ao fluxo editorial automático.")
+            self.message_user(request, notice, messages.WARNING)
         super().save_model(request, obj, form, change)
         event(None, "edit", "Artigo salvo no painel.", article=obj)
 
@@ -65,12 +68,14 @@ class SourceAdmin(admin.ModelAdmin):
     list_display = ["name", "category", "enabled", "authorized", "allow_auto_publish", "last_collected_at"]
     readonly_fields = ["last_collected_at"]
     list_filter = ["enabled", "authorized"]
+    search_fields = ["name", "feed_url"]
 
 
 @admin.register(Photo)
 class PhotoAdmin(admin.ModelAdmin):
-    list_display = ["title", "category", "credit", "rights_confirmed", "allow_automatic"]
-    list_filter = ["category", "allow_automatic"]
+    list_display = ["title", "category", "credit", "generated", "rights_confirmed", "allow_automatic"]
+    list_filter = ["category", "allow_automatic", "generated"]
+    readonly_fields = ["generated", "model_name"]
     search_fields = ["title", "alt", "credit"]
 
 
