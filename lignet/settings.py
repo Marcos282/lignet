@@ -1,4 +1,5 @@
 import os
+import re
 from pathlib import Path
 from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
@@ -40,6 +41,9 @@ SECURE_HSTS_PRELOAD = False
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 SITE_URL = os.getenv('SITE_URL','https://lignetbrasil.com.br').rstrip('/')
+GA4_MEASUREMENT_ID = os.getenv('GA4_MEASUREMENT_ID', '').strip()
+if GA4_MEASUREMENT_ID and not re.fullmatch(r'G-[A-Z0-9]+', GA4_MEASUREMENT_ID):
+    raise ImproperlyConfigured('GA4_MEASUREMENT_ID deve ser um ID de medição válido (G-...).')
 REDIS_URL = os.getenv('REDIS_URL','redis://127.0.0.1:6379/0')
 CACHES = {'default':{'BACKEND':'django.core.cache.backends.redis.RedisCache','LOCATION':REDIS_URL}}
 if TESTING: CACHES = {'default':{'BACKEND':'django.core.cache.backends.locmem.LocMemCache'}}

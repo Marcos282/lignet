@@ -7,6 +7,13 @@
 <link rel="canonical" href="{{ canonical }}"><meta name="theme-color" content="#0b2c58">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="{% static 'lignet/style.css' %}" rel="stylesheet">
+{% if ga4_measurement_id %}<script async src="https://www.googletagmanager.com/gtag/js?id={{ ga4_measurement_id }}"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '{{ ga4_measurement_id }}');
+</script>{% endif %}
 {% block structured_data %}<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"{{ title|escapejs }}","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"BRL"}}</script>{% endblock %}
 {% block head %}{% endblock %}
 </head>

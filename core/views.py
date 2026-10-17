@@ -29,7 +29,25 @@ META={
 'consultar-dns':('Consultar DNS','Consulte os endereços públicos IPv4 e IPv6 de um domínio.'),
 'calculadora-cidr':('Calculadora CIDR','Calcule redes IPv4 e IPv6, máscaras e intervalos de endereços.')}
 
-def portal(request): return FileResponse(open(settings.BASE_DIR/'index.html','rb'),content_type='text/html')
+def portal(request):
+    html=(settings.BASE_DIR/'index.html').read_text(encoding='utf-8')
+    start_marker='<!-- GA4_TAG_START -->'
+    end_marker='<!-- GA4_TAG_END -->'
+    start=html.index(start_marker)
+    end=html.index(end_marker,start)+len(end_marker)
+    tag=''
+    if settings.GA4_MEASUREMENT_ID:
+        measurement_id=settings.GA4_MEASUREMENT_ID
+        tag=f'''<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id={measurement_id}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+  gtag('config', '{measurement_id}');
+</script>'''
+    html=html[:start]+tag+html[end:]
+    return HttpResponse(html,content_type='text/html')
 
 def legacy_asset(request,name):
     allowed={'qr.js':'application/javascript','vendor/qrcode.js':'application/javascript','vendor/qrcode_UTF8.js':'application/javascript'}

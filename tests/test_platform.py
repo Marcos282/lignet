@@ -126,6 +126,29 @@ class PermissionTests(TestCase):
     def test_public_pages(self):
         for path in ['/','/ferramentas/seo/','/ferramentas/sitemap/','/ferramentas/robots-txt/','/ferramentas/indexnow/','/ferramentas/consultar-dns/','/ferramentas/calculadora-cidr/','/sitemap.xml','/robots.txt','/qr.js','/vendor/qrcode.js','/conta/login/','/conta/cadastro/']:
             with self.subTest(path=path):self.assertEqual(self.client.get(path).status_code,200)
+    @override_settings(GA4_MEASUREMENT_ID='G-ZR765MQK3B')
+    def test_ga4_is_included_once_in_base_template(self):
+        for path in ['/ferramentas/seo/','/ferramentas/sitemap/','/conta/login/']:
+            with self.subTest(path=path):
+                response=self.client.get(path)
+                self.assertEqual(response.status_code,200)
+                self.assertEqual(response.content.count(b'googletagmanager.com/gtag/js'),1)
+                self.assertEqual(response.content.count(b"gtag('config', 'G-ZR765MQK3B')"),1)
+    @override_settings(GA4_MEASUREMENT_ID='G-ENVTEST123')
+    def test_ga4_uses_environment_id_on_homepage(self):
+        response=self.client.get('/')
+        self.assertEqual(response.status_code,200)
+        self.assertEqual(response.content.count(b'googletagmanager.com/gtag/js'),1)
+        self.assertIn(b"gtag('config', 'G-ENVTEST123')",response.content)
+        self.assertIn(b'G-ENVTEST123',response.content)
+        self.assertNotIn(b'G-ZR765MQK3B',response.content)
+    @override_settings(GA4_MEASUREMENT_ID='')
+    def test_ga4_can_be_disabled_without_emitting_an_empty_tag(self):
+        for path in ['/ferramentas/seo/','/']:
+            with self.subTest(path=path):
+                response=self.client.get(path)
+                self.assertEqual(response.status_code,200)
+                self.assertNotContains(response,'googletagmanager.com/gtag/js')
     def test_dashboard_requires_login(self): self.assertEqual(self.client.get('/painel/').status_code,302)
     def test_dashboard_render(self):
         self.client.force_login(self.user);self.assertContains(self.client.get('/painel/'),'example.com')
