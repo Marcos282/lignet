@@ -36,10 +36,9 @@
     .brand { display: inline-flex; align-items: center; gap: 11px; font-weight: 800; letter-spacing: -.04em; font-size: 1.18rem; }
     .brand-mark { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 12px; color: white; background: linear-gradient(145deg,#247af3,#0954bd); box-shadow: 0 7px 16px #1769e044; }
     .brand-mark svg { width: 20px; }
+    .nav-toggle { display: none; }
     .nav { display: flex; gap: 30px; align-items: center; color: #52647e; font-weight: 600; font-size: .91rem; }
     .nav a:hover { color: var(--blue); }
-    .nav .nav-cta { background: var(--blue); color: #fff; padding: 11px 17px; border-radius: 11px; box-shadow: 0 7px 15px #1769e033; }
-    .nav .nav-cta:hover { color: white; background: var(--blue-dark); }
     .hero {
       overflow: hidden; position: relative; padding: 84px 24px 110px;
       background: radial-gradient(ellipse at 82% 18%, #d8e9ff 0, transparent 34%), linear-gradient(180deg,#fff 0%,#f4f8ff 100%);
@@ -134,10 +133,24 @@
     .qr-preview p { color: var(--muted); font-size: .84rem; line-height: 1.6; margin: 0; }
     .qr-preview canvas { display: block; width: 100%; height: auto; max-width: 240px; background: white; }
     @media (max-width: 720px) {
-      .topbar { height: 66px; padding: 0 18px; }
-      .nav { gap: 13px; font-size: .8rem; }
-      .nav a:not(.nav-cta) { display: none; }
-      .nav .nav-cta { padding: 10px 12px; }
+      .topbar { height: 66px; padding: 0 18px; position: sticky; }
+      .nav-toggle {
+        display: grid; place-items: center; width: 42px; height: 42px;
+        padding: 0; border: 1px solid var(--line); border-radius: 11px;
+        color: var(--ink); background: white; cursor: pointer;
+      }
+      .nav-toggle:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+      .nav-toggle svg { width: 21px; height: 21px; }
+      .nav {
+        display: none; position: absolute; top: 100%; left: 0; right: 0;
+        flex-direction: column; align-items: stretch; gap: 4px;
+        padding: 12px 18px 18px; background: white;
+        border-bottom: 1px solid var(--line); box-shadow: 0 12px 20px #193e6818;
+        font-size: .95rem;
+      }
+      .topbar.nav-open .nav { display: flex; }
+      .nav a { padding: 12px; border-radius: 9px; }
+      .nav a:hover { background: #f4f8ff; }
       .hero { padding: 65px 20px 90px; }
       .section-wrap { padding: 0 14px 56px; }
       .card-head { padding: 22px 18px 18px; }
@@ -168,6 +181,15 @@
     @media (prefers-reduced-motion: reduce) { *,*::before,*::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
   </style>
 </head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZR765MQK3B"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZR765MQK3B');
+</script>
 <body>
   <header class="topbar">
     <a class="brand" href="#" aria-label="Lignet, página inicial">
@@ -176,13 +198,15 @@
       </span>
       lignet<span style="color:#1769e0">.</span>
     </a>
-    <nav class="nav" aria-label="Navegação principal">
+    <button class="nav-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="main-nav">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <nav class="nav" id="main-nav" aria-label="Navegação principal">
       <a href="#ferramentas">Ferramentas</a>
       <a href="/blog/">Blog</a>
       <a href="/ferramentas/seo/">SEO grátis</a>
       <a href="/ferramentas/ping-mundial/">Ping mundial</a>
       <a href="#sobre">Sobre</a>
-      <a class="nav-cta" href="#ip-cidr">Explorar ferramentas <span aria-hidden="true">↗</span></a>
     </nav>
   </header>
 
@@ -717,6 +741,31 @@
         compressButton.innerHTML = 'Reduzir imagem <span aria-hidden="true">→</span>';
       };
       image.src = sourceUrl;
+    });
+
+    const topbar = document.querySelector(".topbar");
+    const navToggle = document.querySelector(".nav-toggle");
+    const mainNav = document.querySelector("#main-nav");
+
+    function closeNav() {
+      topbar.classList.remove("nav-open");
+      navToggle.setAttribute("aria-expanded", "false");
+      navToggle.setAttribute("aria-label", "Abrir menu");
+    }
+
+    navToggle.addEventListener("click", () => {
+      const isExpanded = navToggle.getAttribute("aria-expanded") === "true";
+      topbar.classList.toggle("nav-open", !isExpanded);
+      navToggle.setAttribute("aria-expanded", String(!isExpanded));
+      navToggle.setAttribute("aria-label", isExpanded ? "Abrir menu" : "Fechar menu");
+    });
+
+    mainNav.addEventListener("click", (event) => {
+      if (event.target.closest("a")) closeNav();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeNav();
     });
   </script>
 </body>
