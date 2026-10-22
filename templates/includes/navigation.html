@@ -1,0 +1,46 @@
+{% load static %}
+<header class="site-header" data-site-navigation>
+  <div class="site-navigation">
+    <a class="site-brand" href="/" aria-label="Lignet Brasil — início"><span aria-hidden="true">L</span> lignet <strong>brasil</strong></a>
+    <button class="site-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="site-nav">☰</button>
+    <div class="site-backdrop" hidden></div>
+    <nav id="site-nav" class="site-nav" aria-label="Navegação principal" tabindex="-1">
+      <div class="site-drawer-heading"><strong>Menu de navegação</strong><button class="site-close" type="button" aria-label="Fechar menu">✕</button></div>
+      <a href="/">Início</a>
+      <div class="site-tools">
+        <button class="site-disclosure" type="button" aria-expanded="false" aria-controls="site-tools">Ferramentas <span aria-hidden="true">⌄</span></button>
+        <div id="site-tools" class="site-tools-panel" hidden>
+          <section class="site-category">
+            <button class="site-disclosure site-category-toggle" type="button" aria-expanded="true" aria-controls="site-network">Redes IP <span aria-hidden="true">⌄</span></button>
+            <div id="site-network">
+              <a href="/ferramentas/calculadora-cidr/">Calculadora IP/CIDR</a>
+              <a href="/ferramentas/ping-mundial/">Ping Mundial</a>
+              <a href="/ferramentas/consultar-dns/">Consultar DNS</a>
+              <a href="/ferramentas/traceroute-mundial/">Traceroute Mundial</a>
+              <a href="/ferramentas/dns-mundial/">DNS Mundial</a>
+              <a href="/ferramentas/http-mundial/">Disponibilidade de sites</a>
+            </div>
+          </section>
+          <section class="site-category">
+            <button class="site-disclosure site-category-toggle" type="button" aria-expanded="true" aria-controls="site-fiber">Fibra Óptica / GPON <span aria-hidden="true">⌄</span></button>
+            <div id="site-fiber"><a href="/ferramentas/simulador-ftth/">Simulador FTTH</a></div>
+          </section>
+          <section class="site-category">
+            <button class="site-disclosure site-category-toggle" type="button" aria-expanded="true" aria-controls="site-seo">SEO e utilitários <span aria-hidden="true">⌄</span></button>
+            <div id="site-seo">
+              <a href="/ferramentas/seo/">Analisar site</a>
+              <a href="/ferramentas/sitemap/">Sitemap</a>
+              <a href="/ferramentas/robots-txt/">Robots.txt</a>
+              <a href="/ferramentas/indexnow/">IndexNow</a>
+              <a href="/#redutor">Redutor de imagens</a>
+              <a href="/#qrcode">Gerador de QR Code</a>
+            </div>
+          </section>
+        </div>
+      </div>
+      <a href="/blog/">Blog</a>
+      <a href="/#sobre">Sobre</a>
+      {% if user.is_authenticated %}<a href="/painel/">Meu painel ↗</a>{% else %}<a href="/conta/login/">Entrar ↗</a>{% endif %}
+    </nav>
+  </div>
+</header>

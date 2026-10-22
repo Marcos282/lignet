@@ -15,17 +15,12 @@ gtag('js', new Date());
 gtag('config', '{{ ga4_measurement_id }}');
 </script>{% endif %}
 {% block structured_data %}<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"{{ title|escapejs }}","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"BRL"}}</script>{% endblock %}
+<link href="{% static 'lignet/navigation.css' %}" rel="stylesheet">
+<script src="{% static 'lignet/navigation.js' %}" defer></script>
 {% block head %}{% endblock %}
 </head>
 <body>
-<header><nav class="shell navigation" aria-label="Navegação principal">
-<a class="brand" href="/"><span class="brand-icon">L</span> lignet<span class="brand-light">brasil</span><span class="seo-label">SEO</span></a>
-<div class="navlinks">
-<a href="{% url 'blog:list' %}">Blog</a>
-<a href="{% url 'seo' %}">Analisar site</a><a href="{% url 'globalping:ping-mundial' %}">Global Ping</a>
-<a href="{% url 'sitemap' %}">Sitemap</a><a href="{% url 'robots-txt' %}">Robots.txt</a>
-{% if user.is_authenticated %}<a class="nav-account" href="{% url 'dashboard' %}">Meu painel ↗</a>{% else %}<a class="nav-account" href="{% url 'login' %}">Entrar ↗</a>{% endif %}
-</div></nav></header>
+{% include 'includes/navigation.html' %}
 <main>
 {% if messages %}<div class="shell messages" role="status">{% for message in messages %}<p class="alert alert-info">{{ message }}</p>{% endfor %}</div>{% endif %}
 {% block content %}{% endblock %}

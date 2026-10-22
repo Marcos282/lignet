@@ -4,6 +4,7 @@ import ipaddress
 import socket
 from django.conf import settings
 from django.http import HttpResponse,FileResponse
+from django.template.loader import render_to_string
 from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib import messages
 from django.views.decorators.http import require_POST
@@ -31,6 +32,7 @@ META={
 
 def portal(request):
     html=(settings.BASE_DIR/'index.html').read_text(encoding='utf-8')
+    html=html.replace('<!-- SITE_NAVIGATION -->',render_to_string('includes/navigation.html',request=request))
     start_marker='<!-- GA4_TAG_START -->'
     end_marker='<!-- GA4_TAG_END -->'
     start=html.index(start_marker)
@@ -171,7 +173,7 @@ def domain_action(request,pk,action):
 def portal_sitemap(request):
     from sitemaps.services import generate
     from globalping.views import PAGES
-    xml,_=generate('\n'.join([settings.SITE_URL+'/',settings.SITE_URL+'/blog/']+[settings.SITE_URL+'/ferramentas/'+key+'/' for key in list(META)+list(PAGES)]))
+    xml,_=generate('\n'.join([settings.SITE_URL+'/',settings.SITE_URL+'/blog/',settings.SITE_URL+'/ferramentas/simulador-ftth/']+[settings.SITE_URL+'/ferramentas/'+key+'/' for key in list(META)+list(PAGES)]))
     return HttpResponse(xml,content_type='application/xml')
 
 def portal_robots(request):
@@ -201,3 +203,7 @@ def operations(request):
     }
     usage=resource.getrusage(resource.RUSAGE_SELF)
     return render(request,'admin/operations.html',{**admin.site.each_context(request),'title':'Operação Lignet SEO','counts':counts,'process_memory_kb':usage.ru_maxrss,'process_cpu_seconds':round(usage.ru_utime+usage.ru_stime,2),'activities':Activity.objects.order_by('-created_at')[:50]})
+
+
+def ftth(request):
+    return render(request,'ftth.html',{'title':'Simulador FTTH — planejamento visual GPON','description':'Monte uma topologia FTTH, configure perdas e simule potência óptica downstream e upstream gratuitamente no navegador.'})

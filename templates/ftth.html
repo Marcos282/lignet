@@ -1,0 +1,26 @@
+{% extends 'base.html' %}{% load static %}
+{% block head %}<link rel="stylesheet" href="{% static 'ftth/editor.css' %}"><script type="module" src="{% static 'ftth/editor.js' %}"></script>{% endblock %}
+{% block content %}
+<div id="ftth-app" class="ftth-app">
+ <section class="ftth-heading"><div><span class="eyebrow">PLANEJAMENTO ÓPTICO · GRATUITO</span><h1>Simulador <em>FTTH</em></h1><p>Desenhe sua rede. Confira cada caminho óptico.</p></div><div class="ftth-local">● Projetos locais · Sem cadastro</div></section>
+ <div class="ftth-project"><label>Nome do projeto<input id="project-name" maxlength="120" value="Meu projeto FTTH"></label><label>Sentido<select id="direction"><option value="down">↓ Downstream · OLT → ONU</option><option value="up">↑ Upstream · ONU → OLT</option></select></label><label>Margem de projeto (dB)<input id="project-margin" type="number" min="0" max="100" step="0.1" value="3"></label><label>λ downstream (nm)<input id="wave-down" type="number" min="800" max="1700" value="1490"></label><label>λ upstream (nm)<input id="wave-up" type="number" min="800" max="1700" value="1310"></label></div>
+ <div class="ftth-toolbar" role="toolbar" aria-label="Ferramentas do editor">
+  <button id="components-toggle" aria-expanded="false" aria-controls="ftth-components">☰ Componentes</button>
+  <button data-add="olt">+ OLT</button><button data-add="splitter">+ Splitter</button><button data-add="cto">+ CTO</button><button data-add="onu">+ ONU</button>
+  <button data-mode="connect" aria-pressed="false">Conectar</button><button data-mode="move" aria-pressed="true">Mover</button><button id="delete-node">Excluir</button>
+  <button id="undo" aria-label="Desfazer">↶ Desfazer</button><button id="redo" aria-label="Refazer">↷ Refazer</button>
+  <button id="zoom-in" aria-label="Ampliar">Zoom +</button><button id="zoom-out" aria-label="Reduzir">Zoom −</button><button id="fit">Centralizar</button>
+  <button id="save">Salvar local</button><button id="load">Abrir local</button><button id="import">Importar JSON</button><button id="export">Exportar JSON</button><button id="report">Relatório / PDF</button><button id="example">Exemplo</button>
+  <input type="file" id="import-file" accept="application/json,.json" hidden>
+ </div>
+ <p id="ftth-status" class="ftth-status" role="status" aria-live="polite">Adicione componentes ou abra o exemplo. No modo Conectar, escolha uma saída e depois o destino.</p>
+ <div class="ftth-layout">
+  <aside id="ftth-components" class="ftth-components" aria-label="Componentes"><div class="ftth-panel-title"><h2>Componentes</h2><button id="components-close" aria-label="Fechar componentes">✕</button></div><p>Arraste para o editor ou toque para adicionar.</p><div id="palette"></div><p class="ftth-hint">Splitters: perdas típicas editáveis. Configure a óptica conforme o módulo utilizado.</p></aside>
+  <section class="ftth-workspace" aria-label="Área de topologia"><div class="ftth-canvas-label"><span>TOPOLOGIA GPON</span><span id="zoom-label">100%</span></div><svg id="ftth-canvas" viewBox="0 0 1000 650" role="group" aria-label="Diagrama da rede. Use Tab para selecionar, Enter para conectar e setas para mover." tabindex="0"><defs><pattern id="ftth-grid" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#d8e4f1"/></pattern></defs><rect width="100%" height="100%" fill="url(#ftth-grid)"/><g id="ftth-scene"><g id="ftth-edges"></g><g id="ftth-nodes"></g></g></svg><p class="ftth-canvas-help">Arraste o fundo para mover a visão · Dois dedos para zoom · Tab / Enter para selecionar · Setas para mover</p></section>
+  <aside id="ftth-properties" class="ftth-properties" aria-label="Propriedades"><div class="ftth-panel-title"><h2>Propriedades</h2><button id="properties-close" aria-label="Fechar propriedades">✕</button></div><form id="properties-form"><p>Selecione um componente ou uma conexão no diagrama.</p></form></aside>
+ </div>
+ <section class="ftth-results"><div class="ftth-panel-title"><h2>Resultados por ONU</h2><span id="ftth-counts"></span></div><div class="ftth-table-wrap"><table><thead><tr><th>ONU / classe</th><th>Caminho (km)</th><th>Perda (dB)</th><th id="rx-heading">RX na ONU (dBm)</th><th>Margem disponível (dB)</th><th>Diagnóstico</th></tr></thead><tbody id="results-body"></tbody></table></div><div id="ftth-alerts"></div></section>
+ <p class="ftth-footnote">Estimativas de potência para planejamento, sem acesso a equipamentos. Verifique as especificações do módulo óptico e as medições em campo. A margem disponível considera a menor folga até sensibilidade ou sobrecarga. As atenuações devem corresponder aos comprimentos de onda configurados. Classes e fabricantes são referências; não preenchem limites automaticamente.</p>
+</div>
+<section id="ftth-print" class="ftth-print" aria-label="Relatório de simulação"></section>
+{% endblock %}

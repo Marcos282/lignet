@@ -191,26 +191,11 @@
   gtag('config', 'G-ZR765MQK3B');
 </script>
   <!-- GA4_TAG_END -->
+<link rel="stylesheet" href="/static/lignet/navigation.css">
+<script src="/static/lignet/navigation.js" defer></script>
 </head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="#" aria-label="Lignet, página inicial">
-      <span class="brand-mark" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M4 8.5 12 4l8 4.5v7L12 20l-8-4.5v-7Z" stroke="currentColor" stroke-width="1.8"/><path d="m8 10.5 4 2.2 4-2.2M12 13v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-      </span>
-      lignet<span style="color:#1769e0">.</span>
-    </a>
-    <button class="nav-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="main-nav">
-      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-    </button>
-    <nav class="nav" id="main-nav" aria-label="Navegação principal">
-      <a href="#ferramentas">Ferramentas</a>
-      <a href="/blog/">Blog</a>
-      <a href="/ferramentas/seo/">SEO grátis</a>
-      <a href="/ferramentas/ping-mundial/">Ping mundial</a>
-      <a href="#sobre">Sobre</a>
-    </nav>
-  </header>
+  <!-- SITE_NAVIGATION -->
 
   <main>
     <section class="hero">
@@ -745,30 +730,6 @@
       image.src = sourceUrl;
     });
 
-    const topbar = document.querySelector(".topbar");
-    const navToggle = document.querySelector(".nav-toggle");
-    const mainNav = document.querySelector("#main-nav");
-
-    function closeNav() {
-      topbar.classList.remove("nav-open");
-      navToggle.setAttribute("aria-expanded", "false");
-      navToggle.setAttribute("aria-label", "Abrir menu");
-    }
-
-    navToggle.addEventListener("click", () => {
-      const isExpanded = navToggle.getAttribute("aria-expanded") === "true";
-      topbar.classList.toggle("nav-open", !isExpanded);
-      navToggle.setAttribute("aria-expanded", String(!isExpanded));
-      navToggle.setAttribute("aria-label", isExpanded ? "Abrir menu" : "Fechar menu");
-    });
-
-    mainNav.addEventListener("click", (event) => {
-      if (event.target.closest("a")) closeNav();
-    });
-
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") closeNav();
-    });
   </script>
 </body>
 </html>
