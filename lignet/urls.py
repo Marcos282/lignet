@@ -5,6 +5,7 @@ from core import views
 from search_console import views as google
 from blog import views as blog_views
 urlpatterns=[
+    path('',include('ftth_designer.urls')),
     path('blog/',include('blog.urls')),
     path('',include('globalping.urls')),
     path('',views.portal,name='home'),

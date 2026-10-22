@@ -174,7 +174,7 @@ def domain_action(request,pk,action):
 def portal_sitemap(request):
     from sitemaps.services import generate
     from globalping.views import PAGES
-    xml,_=generate('\n'.join([settings.SITE_URL+'/',settings.SITE_URL+'/blog/',settings.SITE_URL+'/ferramentas/simulador-ftth/']+[settings.SITE_URL+'/ferramentas/'+key+'/' for key in list(META)+list(PAGES)]))
+    xml,_=generate('\n'.join([settings.SITE_URL+'/',settings.SITE_URL+'/blog/',settings.SITE_URL+'/ferramentas/simulador-ftth/',settings.SITE_URL+'/ferramentas/projetista-ftth/']+[settings.SITE_URL+'/ferramentas/'+key+'/' for key in list(META)+list(PAGES)]))
     return HttpResponse(xml,content_type='application/xml')
 
 def portal_robots(request):
