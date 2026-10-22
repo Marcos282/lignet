@@ -191,11 +191,85 @@
   gtag('config', 'G-ZR765MQK3B');
 </script>
   <!-- GA4_TAG_END -->
-<link rel="stylesheet" href="/static/lignet/navigation.css">
-<script src="/static/lignet/navigation.js" defer></script>
+<!-- SITE_NAV_STYLE_START -->
+<style>
+html{scroll-padding-top:100px}
+.site-header{position:sticky;top:0;z-index:1000;background:#fff;border-bottom:1px solid #e0e7f0;box-shadow:0 3px 18px #0b2c5808}
+.site-navigation{width:min(1200px,calc(100% - 32px));min-height:80px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.site-brand{display:inline-flex;align-items:center;gap:7px;color:#0b2c58;font-size:22px;font-weight:800;letter-spacing:-.7px;white-space:nowrap;text-decoration:none}
+.site-brand strong{font-weight:450}.site-brand>span{display:grid;place-items:center;width:36px;height:38px;margin-right:4px;background:#164fe5;color:white;border-radius:10px}
+.site-nav{display:flex;align-items:center;gap:8px;font:600 14px/1.5 system-ui,sans-serif;color:#173456}
+.site-nav a,.site-disclosure{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;padding:10px 14px;color:#173456;border:0;border-radius:9px;background:transparent;text-decoration:none;font:inherit;cursor:pointer;transition:background .18s,color .18s}
+.site-nav a:hover,.site-disclosure:hover{background:#edf4ff;color:#164fe5;text-decoration:none}
+.site-nav a[aria-current=page],.site-tools-active{background:#eaf7f1;color:#08764e;box-shadow:inset 0 -3px #16a67a}
+.site-header :focus-visible{outline:3px solid #164fe5;outline-offset:3px}
+.site-tools{position:relative}.site-tools-panel{position:absolute;top:calc(100% + 10px);right:0;width:560px;max-width:calc(100vw - 32px);display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:16px;border:1px solid #e0e7f0;border-radius:14px;background:#fff;box-shadow:0 18px 45px #0b2c5826;max-height:calc(100dvh - 120px);overflow:auto;overscroll-behavior:contain}
+.site-category{min-width:0}.site-category-toggle{width:100%;font-weight:750;color:#0b2c58;border-bottom:1px solid #e0e7f0;border-radius:0;margin-bottom:6px}.site-category a{font-size:13px;overflow-wrap:anywhere}
+.site-toggle,.site-close{display:none;width:44px;height:44px;padding:0;border:1px solid #d6e2ef;border-radius:10px;background:#fff;color:#0b2c58;font-size:25px;cursor:pointer;flex-shrink:0}.site-drawer-heading{display:none}
+.site-header [hidden]{display:none!important}
+@media(max-width:900px){
+ .site-navigation{min-height:72px}.site-toggle{display:block}.site-brand{font-size:21px}
+ .site-backdrop{position:fixed;inset:0;background:#071d3d80;z-index:1001;touch-action:none}
+ .site-nav{position:fixed;inset:0 0 0 auto;width:min(360px,calc(100% - 32px));height:100vh;height:100dvh;z-index:1002;display:flex;flex-direction:column;align-items:stretch;gap:6px;padding: max(18px,env(safe-area-inset-top)) 18px max(24px,env(safe-area-inset-bottom));background:#fff;overflow-y:auto;overscroll-behavior:contain;visibility:hidden;transform:translateX(100%);transition:transform .25s ease,visibility .25s;box-shadow:-12px 0 40px #0b2c5820}
+ .site-header.is-open .site-nav{visibility:visible;transform:translateX(0)}
+ .site-drawer-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:16px;margin-bottom:8px;border-bottom:1px solid #e0e7f0}.site-close{display:block;font-size:20px}
+ .site-tools-panel{position:static;width:100%;max-width:none;max-height:none;grid-template-columns:1fr;padding:6px 0 6px 10px;border:0;border-left:3px solid #16a67a;border-radius:0;box-shadow:none;gap:12px;overflow:visible}
+ .site-tools>.site-disclosure{width:100%}.site-category a{font-size:14px}
+}
+@media(prefers-reduced-motion:reduce){.site-nav,.site-nav a,.site-disclosure{transition:none}html{scroll-behavior:auto}}
+@media(max-width:900px){.site-header.is-open .site-nav{transition:transform .25s ease;visibility:visible}}
+@media(prefers-reduced-motion:reduce){.site-header.is-open .site-nav{transition:none}}
+</style>
+<!-- SITE_NAV_STYLE_END -->
 </head>
 <body>
-  <!-- SITE_NAVIGATION -->
+  <!-- SITE_NAVIGATION_START -->
+<header class="site-header" data-site-navigation>
+  <div class="site-navigation">
+    <a class="site-brand" href="/" aria-label="Lignet Brasil — início"><span aria-hidden="true">L</span> lignet <strong>brasil</strong></a>
+    <button class="site-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="site-nav">☰</button>
+    <div class="site-backdrop" hidden></div>
+    <nav id="site-nav" class="site-nav" aria-label="Navegação principal" tabindex="-1">
+      <div class="site-drawer-heading"><strong>Menu de navegação</strong><button class="site-close" type="button" aria-label="Fechar menu">✕</button></div>
+      <a href="/">Início</a>
+      <div class="site-tools">
+        <button class="site-disclosure" type="button" aria-expanded="false" aria-controls="site-tools">Ferramentas <span aria-hidden="true">⌄</span></button>
+        <div id="site-tools" class="site-tools-panel" hidden>
+          <section class="site-category">
+            <button class="site-disclosure site-category-toggle" type="button" aria-expanded="true" aria-controls="site-network">Redes IP <span aria-hidden="true">⌄</span></button>
+            <div id="site-network">
+              <a href="/ferramentas/calculadora-cidr/">Calculadora IP/CIDR</a>
+              <a href="/ferramentas/ping-mundial/">Ping Mundial</a>
+              <a href="/ferramentas/consultar-dns/">Consultar DNS</a>
+              <a href="/ferramentas/traceroute-mundial/">Traceroute Mundial</a>
+              <a href="/ferramentas/dns-mundial/">DNS Mundial</a>
+              <a href="/ferramentas/http-mundial/">Disponibilidade de sites</a>
+            </div>
+          </section>
+          <section class="site-category">
+            <button class="site-disclosure site-category-toggle" type="button" aria-expanded="true" aria-controls="site-fiber">Fibra Óptica / GPON <span aria-hidden="true">⌄</span></button>
+            <div id="site-fiber"><a href="/ferramentas/simulador-ftth/">Simulador FTTH</a></div>
+          </section>
+          <section class="site-category">
+            <button class="site-disclosure site-category-toggle" type="button" aria-expanded="true" aria-controls="site-seo">SEO e utilitários <span aria-hidden="true">⌄</span></button>
+            <div id="site-seo">
+              <a href="/ferramentas/seo/">Analisar site</a>
+              <a href="/ferramentas/sitemap/">Sitemap</a>
+              <a href="/ferramentas/robots-txt/">Robots.txt</a>
+              <a href="/ferramentas/indexnow/">IndexNow</a>
+              <a href="/#redutor">Redutor de imagens</a>
+              <a href="/#qrcode">Gerador de QR Code</a>
+            </div>
+          </section>
+        </div>
+      </div>
+      <a href="/blog/">Blog</a>
+      <a href="/#sobre">Sobre</a>
+      <a href="/conta/login/">Entrar ↗</a>
+    </nav>
+  </div>
+</header>
+<!-- SITE_NAVIGATION_END -->
 
   <main>
     <section class="hero">
@@ -731,5 +805,103 @@
     });
 
   </script>
+<!-- SITE_NAV_SCRIPT_START -->
+<script>
+(() => {
+  const header = document.querySelector('[data-site-navigation]');
+  if (!header) return;
+  const nav = header.querySelector('.site-nav');
+  const toggle = header.querySelector('.site-toggle');
+  const close = header.querySelector('.site-close');
+  const backdrop = header.querySelector('.site-backdrop');
+  const tools = header.querySelector('.site-tools > button');
+  const mobile = matchMedia('(max-width: 900px)');
+  let savedScroll = 0;
+  let previousBodyStyle;
+  let inertElements = [];
+  const expanded = (button, value) => {
+    button.setAttribute('aria-expanded', String(value));
+    document.getElementById(button.getAttribute('aria-controls')).hidden = !value;
+  };
+  function setOpen(open, restoreFocus = true) {
+    if (open === header.classList.contains('is-open')) return;
+    header.classList.toggle('is-open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
+    backdrop.hidden = !open;
+    if (open) {
+      savedScroll = window.scrollY;
+      previousBodyStyle = document.body.getAttribute('style');
+      Object.assign(document.body.style, {position: 'fixed', top: `-${savedScroll}px`, width: '100%', overflow: 'hidden'});
+      // Inert every branch outside the drawer, including the logo and trigger.
+      let branch = nav;
+      while (branch !== document.body) {
+        for (const sibling of branch.parentElement.children) {
+          if (sibling !== branch && sibling !== backdrop && !sibling.inert) {
+            sibling.inert = true;
+            inertElements.push(sibling);
+          }
+        }
+        branch = branch.parentElement;
+      }
+      nav.setAttribute('role', 'dialog');
+      nav.setAttribute('aria-modal', 'true');
+      requestAnimationFrame(() => {
+        if (header.classList.contains('is-open')) close.focus({preventScroll: true});
+      });
+    } else {
+      for (const element of inertElements) element.inert = false;
+      inertElements = [];
+      if (previousBodyStyle === null) document.body.removeAttribute('style');
+      else document.body.setAttribute('style', previousBodyStyle);
+      const behavior = document.documentElement.style.scrollBehavior;
+      document.documentElement.style.scrollBehavior = 'auto';
+      window.scrollTo(0, savedScroll);
+      document.documentElement.style.scrollBehavior = behavior;
+      nav.removeAttribute('role');
+      nav.removeAttribute('aria-modal');
+      if (restoreFocus) toggle.focus();
+    }
+  }
+  toggle.addEventListener('click', () => setOpen(!header.classList.contains('is-open')));
+  close.addEventListener('click', () => setOpen(false));
+  backdrop.addEventListener('click', () => setOpen(false));
+  header.querySelectorAll('.site-disclosure').forEach(button => {
+    button.addEventListener('click', () => expanded(button, button.getAttribute('aria-expanded') !== 'true'));
+  });
+  nav.querySelectorAll('a').forEach(link => {
+    const url = new URL(link.href);
+    if (!url.hash && (location.pathname === url.pathname || (url.pathname === '/blog/' && location.pathname.startsWith('/blog/')))) {
+      link.setAttribute('aria-current', 'page');
+      if (link.closest('.site-tools')) tools.classList.add('site-tools-active');
+    }
+    link.addEventListener('click', () => {
+      setOpen(false);
+      expanded(tools, false);
+    });
+  });
+  document.addEventListener('click', event => {
+    if (!event.target.closest('.site-tools')) expanded(tools, false);
+  });
+  document.addEventListener('keydown', event => {
+    const open = header.classList.contains('is-open');
+    if (event.key === 'Escape') {
+      if (open) setOpen(false);
+      else if (tools.getAttribute('aria-expanded') === 'true') { expanded(tools, false); tools.focus(); }
+    }
+    if (open && event.key === 'Tab') {
+      const focusable = [...nav.querySelectorAll('a, button')].filter(el => el.getClientRects().length);
+      const first = focusable[0], last = focusable.at(-1);
+      if (event.shiftKey && (document.activeElement === first || document.activeElement === nav)) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    }
+  });
+  nav.addEventListener('focusout', event => {
+    if (!mobile.matches && event.relatedTarget && !nav.contains(event.relatedTarget)) expanded(tools, false);
+  });
+  mobile.addEventListener('change', () => { setOpen(false, false); expanded(tools, false); });
+})();
+</script>
+<!-- SITE_NAV_SCRIPT_END -->
 </body>
 </html>

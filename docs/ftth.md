@@ -108,3 +108,44 @@ Chromium, arquivos, diagnóstico, histórico e PDF. Os artefatos de QA ficam em
 
 A implantação usa o fluxo normal do projeto para código Django e arquivos
 estáticos. O simulador não requer alterações no Nginx nem novos serviços.
+
+## Atualização de uma implantação existente
+
+`git pull` atualiza os arquivos; não recarrega o processo Django/Gunicorn nem
+copia os novos arquivos para `STATIC_ROOT`. Se a rota nova retornar 404, páginas
+internas ainda mostrarem o menu antigo e `/static/ftth/editor.js` retornar 404,
+confira o commit no diretório usado pelo processo, execute `collectstatic` no
+mesmo ambiente e recarregue somente o serviço web do Lignet. Nenhuma migração
+de banco é necessária para esta ferramenta. Não é necessário substituir Nginx.
+
+Se a implantação usa o Compose fornecido pelo projeto, execute da raiz:
+
+```sh
+git pull --ff-only
+docker compose --env-file .env -f deploy/compose.yaml build web
+docker compose --env-file .env -f deploy/compose.yaml run --rm web python manage.py collectstatic --noinput
+docker compose --env-file .env -f deploy/compose.yaml up -d --no-deps web
+```
+
+Com Gunicorn/systemd, use o Python do ambiente virtual efetivamente usado pelo
+serviço para executar `manage.py collectstatic --noinput`; depois reinicie
+somente a unidade web do Lignet, com o nome confirmado no servidor. Não adivinhe
+o nome da unidade e não reinicie todos os serviços Gunicorn da máquina.
+
+A página inicial pode ser entregue diretamente pelo Nginx como `index.html`.
+Ela contém uma versão gerada do mesmo menu, com CSS e JavaScript incorporados,
+para funcionar mesmo sem passagem pelo Django e sem depender de `/static/`.
+Ao alterar o menu compartilhado, sincronize esse artefato antes de versionar:
+
+```sh
+TESTING=1 myenv/bin/python manage.py build_portal_navigation
+TESTING=1 myenv/bin/python manage.py build_portal_navigation --check
+```
+
+O Django substitui somente esse bloco ao servir `/`, preservando a opção de
+conta autenticada. O gerador preserva o conteúdo e o bloco de Analytics do portal.
+
+Depois da implantação, confirme HTTP 200 na ferramenta e nos dois recursos:
+`/ferramentas/simulador-ftth/`, `/static/ftth/editor.js` e
+`/static/lignet/navigation.css`. A página inicial deve conter `id="site-nav"`
+exatamente uma vez.

@@ -5,6 +5,7 @@ import socket
 from django.conf import settings
 from django.http import HttpResponse,FileResponse
 from django.template.loader import render_to_string
+from .portal_navigation import replace_navigation
 from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib import messages
 from django.views.decorators.http import require_POST
@@ -32,7 +33,7 @@ META={
 
 def portal(request):
     html=(settings.BASE_DIR/'index.html').read_text(encoding='utf-8')
-    html=html.replace('<!-- SITE_NAVIGATION -->',render_to_string('includes/navigation.html',request=request))
+    html=replace_navigation(html,render_to_string('includes/navigation.html',request=request))
     start_marker='<!-- GA4_TAG_START -->'
     end_marker='<!-- GA4_TAG_END -->'
     start=html.index(start_marker)
